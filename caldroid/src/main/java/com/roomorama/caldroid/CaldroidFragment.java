@@ -1465,7 +1465,7 @@ public class CaldroidFragment extends DialogFragment {
             currentPage = position;
             month = restoreDate.getMonth();
             year = restoreDate.getYear();
-            refreshMonthTitleTextView();
+            //refreshMonthTitleTextView();
         }
 
         /**
@@ -1476,8 +1476,8 @@ public class CaldroidFragment extends DialogFragment {
             refreshAdapters(position);
             if(restoreDate != null) {
                 // Update current date time of the selected page
-                //setCalendarDateTime(currentDateTime);
-                setCalendarDateTime(restoreDate);
+                setCalendarDateTime(currentDateTime);
+                //setCalendarDateTime(restoreDate);
 
             }
             // Update all the dates inside current month
