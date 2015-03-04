@@ -52,7 +52,7 @@
         app:headerColumnPadding="5dp"
         app:headerColumnTextColor="#8f000000"
         app:headerRowBackgroundColor="#FFFFFF"
-        app:headerRowPadding="14dp"
+        app:headerRowPadding="15dp"
         app:hourHeight="60dp"
         app:noOfVisibleDays="1"
         app:textSize="12sp"
