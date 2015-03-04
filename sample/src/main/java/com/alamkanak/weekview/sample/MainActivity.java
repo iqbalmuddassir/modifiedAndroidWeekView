@@ -3,6 +3,7 @@ package com.alamkanak.weekview.sample;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -42,6 +43,8 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     // Month view fragment object
     private CustomMonthCalendar customMonthCalendar;
 
+    private FragmentManager manager = null;
+
     // Month view listener
     final CaldroidListener listener = new CaldroidListener() {
 
@@ -50,6 +53,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             // this is setting background of the selected date
             customMonthCalendar.setBackgroundResourceForDate(R.drawable.ic_launcher, date);
             customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+            customMonthCalendar.refreshView();
             FragmentTransaction t = getSupportFragmentManager().beginTransaction();
             t.remove(customMonthCalendar);
             t.commit();
@@ -114,7 +118,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
         // Caldroid fragment for month view calendar
         customMonthCalendar = new CustomMonthCalendar();
-        Date date = new Date();
+        /*Date date = new Date();
         // If Activity is created after rotation
         if (savedInstanceState != null) {
             customMonthCalendar.restoreStatesFromKey(savedInstanceState,
@@ -140,13 +144,14 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             // args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
 
             customMonthCalendar.setArguments(args);
-            getEventFromDatabase();
-        }
+
+        }*/
 
         /*customMonthCalendar.setBackgroundResourceForDate(R.drawable.ic_launcher, date);
         customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);*/
         // Setup Caldroid
         customMonthCalendar.setCaldroidListener(listener);
+        getEventFromDatabase();
     }
 
     @Override
@@ -168,6 +173,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     }
 
     public void onClick(View view) {
+        //manager = null;
         mWeekView.goToToday();
         switch (view.getId()) {
             case R.id.action_day_view:
@@ -199,9 +205,26 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             case R.id.action_month_view:
                 mWeekView.setVisibility(View.GONE);
                 // open the month view calendar
+                if(manager == null) {
+                    Bundle args = new Bundle();
+                    /*Calendar cal = Calendar.getInstance();
+                    args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+                    args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));*/
+                    args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
+                    args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
 
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
+
+                    //Uncomment this to customize startDayOfWeek
+                /*args.putInt(CaldroidFragment.START_DAY_OF_WEEK,
+                CaldroidFragment.TUESDAY);*/
+
+                    customMonthCalendar.setArguments(args);
+                }
+                manager = getSupportFragmentManager();
+                manager.beginTransaction()
+                        .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
+                customMonthCalendar.refreshView();
+
                 break;
         }
     }

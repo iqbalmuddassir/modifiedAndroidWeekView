@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -85,6 +86,9 @@ public class CaldroidFragment extends DialogFragment {
     public static int THURSDAY = 5;
     public static int FRIDAY = 6;
     public static int SATURDAY = 7;
+
+    public DateTime restoreDate;
+    public int currentPage = InfiniteViewPager.OFFSET;
 
     /**
      * Flags to display month
@@ -940,7 +944,7 @@ public class CaldroidFragment extends DialogFragment {
         String monthTitle = DateUtils.formatDateRange(getActivity(),
                 monthYearFormatter, millis, millis, MONTH_YEAR_FLAG).toString();
 
-        monthTitleTextView.setText(monthTitle.toUpperCase(Locale.getDefault()));
+        monthTitleTextView.setText(monthTitle.toUpperCase());
     }
 
     /**
@@ -1315,7 +1319,7 @@ public class CaldroidFragment extends DialogFragment {
      * @author thomasdao
      */
     public class DatePageChangeListener implements OnPageChangeListener {
-        private int currentPage = InfiniteViewPager.OFFSET;
+        /*public int currentPage = InfiniteViewPager.OFFSET;*/
         private DateTime currentDateTime;
         private ArrayList<CaldroidGridAdapter> caldroidGridAdapters;
 
@@ -1328,8 +1332,8 @@ public class CaldroidFragment extends DialogFragment {
             return currentPage;
         }
 
-        public void setCurrentPage(int currentPage) {
-            this.currentPage = currentPage;
+        public void setCurrentPage(int currentPages) {
+            currentPage = currentPages;
         }
 
         /**
@@ -1407,6 +1411,7 @@ public class CaldroidFragment extends DialogFragment {
             CaldroidGridAdapter nextAdapter = caldroidGridAdapters
                     .get(getNext(position));
 
+            restoreDate = new DateTime(currentDateTime.getYear(),currentDateTime.getMonth(),1,0,0,0,0);
             if (position == currentPage) {
                 // Refresh current adapter
 
@@ -1427,29 +1432,40 @@ public class CaldroidFragment extends DialogFragment {
             // Swipe right
             else if (position > currentPage) {
                 // Update current date time to next month
+                /*if(currentDateTime == getCurrentDateTime()) {
+                    currentAdapter.setAdapterDateTime(currentDateTime);
+                    currentAdapter.notifyDataSetChanged();
+                }*/
+
                 currentDateTime = currentDateTime.plus(0, 1, 0, 0, 0, 0, 0,
                         DateTime.DayOverflow.LastDay);
 
                 // Refresh the adapter of next gridview
                 nextAdapter.setAdapterDateTime(currentDateTime.plus(0, 1, 0, 0,
                         0, 0, 0, DateTime.DayOverflow.LastDay));
+
                 nextAdapter.notifyDataSetChanged();
 
             }
             // Swipe left
             else {
                 // Update current date time to previous month
+
                 currentDateTime = currentDateTime.minus(0, 1, 0, 0, 0, 0, 0,
                         DateTime.DayOverflow.LastDay);
 
                 // Refresh the adapter of previous gridview
                 prevAdapter.setAdapterDateTime(currentDateTime.minus(0, 1, 0,
                         0, 0, 0, 0, DateTime.DayOverflow.LastDay));
+
                 prevAdapter.notifyDataSetChanged();
             }
 
             // Update current page
             currentPage = position;
+            month = restoreDate.getMonth();
+            year = restoreDate.getYear();
+            refreshMonthTitleTextView();
         }
 
         /**
@@ -1458,10 +1474,12 @@ public class CaldroidFragment extends DialogFragment {
         @Override
         public void onPageSelected(int position) {
             refreshAdapters(position);
+            if(restoreDate != null) {
+                // Update current date time of the selected page
+                //setCalendarDateTime(currentDateTime);
+                setCalendarDateTime(restoreDate);
 
-            // Update current date time of the selected page
-            setCalendarDateTime(currentDateTime);
-
+            }
             // Update all the dates inside current month
             CaldroidGridAdapter currentAdapter = caldroidGridAdapters
                     .get(position % CaldroidFragment.NUMBER_OF_PAGES);
