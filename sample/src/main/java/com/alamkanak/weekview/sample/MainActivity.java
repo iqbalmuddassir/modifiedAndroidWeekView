@@ -1,6 +1,8 @@
 package com.alamkanak.weekview.sample;
 
+import android.graphics.Color;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +11,8 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekView;
@@ -31,11 +35,15 @@ import java.util.List;
 public class MainActivity extends FragmentActivity implements WeekView.MonthChangeListener,
         WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener {
 
-    // This map is used to store the events
-    HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
+    // Constants for month identifier - Added by Muddassir
+    private static final int JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8,
+            SEP = 9, OCT = 10, NOV = 11, DEC = 12;
 
     // This is the counter for event count - can be removed after testing
     private static int count = 1;
+
+    // This map is used to store the events
+    HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
 
     // Day view & Week view object
     private WeekView mWeekView;
@@ -43,15 +51,13 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     // Month view fragment object
     private CustomMonthCalendar customMonthCalendar;
 
-    private FragmentManager manager = null;
-
     // Month view listener
     final CaldroidListener listener = new CaldroidListener() {
 
         @Override
         public void onSelectDate(Date date, View view) {
             // this is setting background of the selected date
-            customMonthCalendar.setBackgroundResourceForDate(R.drawable.ic_launcher, date);
+            customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
             customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
             customMonthCalendar.refreshView();
             FragmentTransaction t = getSupportFragmentManager().beginTransaction();
@@ -90,7 +96,12 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         }
 
     };
+    private FragmentManager manager = null;
     private SimpleDateFormat formatter;
+
+    // Type face for custom font
+    /*Typeface ralewayTypeface = Typeface.createFromAsset(getAssets(),
+            "fonts/Raleway-Light.ttf");*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +126,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         mWeekView.setmEndMinute("19:30:00");
         mWeekView.setmStartMinute("09:30:00");
         mWeekView.setEmptyViewClickListener(this);
+        mWeekView.setHourSeparatorColor(Color.WHITE);
 
         // Caldroid fragment for month view calendar
         customMonthCalendar = new CustomMonthCalendar();
@@ -147,9 +159,13 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
         }*/
 
-        /*customMonthCalendar.setBackgroundResourceForDate(R.drawable.ic_launcher, date);
+        /*customMonthCalendar.setBackgroundResourceForDate(R.color.event_upcoming, date);
         customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);*/
         // Setup Caldroid
+        /*TextView textView = customMonthCalendar.getMonthTitleTextView();
+        textView.setTypeface(ralewayTypeface);
+
+        textView.setTypeface(ralewayTypeface);*/
         customMonthCalendar.setCaldroidListener(listener);
         getEventFromDatabase();
     }
@@ -205,11 +221,11 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             case R.id.action_month_view:
                 mWeekView.setVisibility(View.GONE);
                 // open the month view calendar
-                if(manager == null) {
+                if (manager == null) {
                     Bundle args = new Bundle();
-                    /*Calendar cal = Calendar.getInstance();
+                    Calendar cal = Calendar.getInstance();
                     args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-                    args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));*/
+                    args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
                     args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
                     args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
 
@@ -313,7 +329,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         WeekViewEvent event = new WeekViewEvent(1, getEventTitle(startTime), startTime, endTime);
         event.setColor(getResources().getColor(R.color.event_color_01));
         eventJan.add(event);
-        eventMap.put(1, eventJan);
+        Date date = startTime.getTime();
+        customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+        eventMap.put(JAN, eventJan);
 
         List<WeekViewEvent> eventFeb = new ArrayList<>();
         startTime = Calendar.getInstance();
@@ -329,7 +348,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         event = new WeekViewEvent(1, getEventTitle(startTime), startTime, endTime);
         event.setColor(getResources().getColor(R.color.event_color_02));
         eventFeb.add(event);
-        eventMap.put(2, eventFeb);
+        date = startTime.getTime();
+        customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+        eventMap.put(FEB, eventFeb);
 
         List<WeekViewEvent> eventMar = new ArrayList<>();
         startTime = Calendar.getInstance();
@@ -345,7 +367,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         event = new WeekViewEvent(10, getEventTitle(startTime), startTime, endTime);
         event.setColor(getResources().getColor(R.color.event_color_03));
         eventMar.add(event);
-        eventMap.put(3, eventMar);
+        date = startTime.getTime();
+        customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+        eventMap.put(MAR, eventMar);
 
         List<WeekViewEvent> eventApr = new ArrayList<>();
         startTime = Calendar.getInstance();
@@ -361,7 +386,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         event = new WeekViewEvent(10, getEventTitle(startTime), startTime, endTime);
         event.setColor(getResources().getColor(R.color.event_color_04));
         eventApr.add(event);
-        eventMap.put(4, eventApr);
+        date = startTime.getTime();
+        customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+        eventMap.put(APR, eventApr);
 
         List<WeekViewEvent> eventMay = new ArrayList<>();
         startTime = Calendar.getInstance();
@@ -377,7 +405,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         event = new WeekViewEvent(10, getEventTitle(startTime), startTime, endTime);
         event.setColor(getResources().getColor(R.color.event_color_01));
         eventApr.add(event);
-        eventMap.put(5, eventMay);
+        date = startTime.getTime();
+        customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
+        eventMap.put(MAY, eventMay);
     }
 
     private boolean addEvent(Date startTime, Date endTime, String eventTitle) {

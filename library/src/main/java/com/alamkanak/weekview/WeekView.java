@@ -50,6 +50,9 @@ public class WeekView extends View {
     public static final int LENGTH_LONG = 2;
     @Deprecated
     private int mDayNameLength = LENGTH_LONG;
+
+    private static final String TODAY_COLOR = "#bb1a35";
+
     private final Context mContext;
     private Calendar mToday;
     private Calendar mStartDate;
@@ -97,7 +100,7 @@ public class WeekView extends View {
     private int mHeaderRowPadding = 15;
     private int mHeaderRowBackgroundColor = Color.WHITE;
     private int mDayBackgroundColor = Color.rgb(245, 245, 245);
-    private int mHourSeparatorColor = Color.rgb(230, 230, 230);
+    private int mHourSeparatorColor = Color.WHITE; //Color.rgb(230, 230, 230); // Edited by Muddassir
     private int mTodayBackgroundColor = Color.rgb(239, 247, 254);
     private int mHourSeparatorHeight = 2;
     private int mTodayHeaderTextColor = Color.WHITE; //Color.rgb(39, 137, 228); // Edited - Muddassir
@@ -123,8 +126,6 @@ public class WeekView extends View {
     private MonthChangeListener mMonthChangeListener;
     private EmptyViewClickListener mEmptyViewClickListener;
     private EmptyViewLongPressListener mEmptyViewLongPressListener;
-    private DateTimeInterpreter mDateTimeInterpreter;
-
     private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -224,6 +225,7 @@ public class WeekView extends View {
             }
         }
     };
+    private DateTimeInterpreter mDateTimeInterpreter;
 
     public WeekView(Context context) {
         this(context, null);
@@ -395,13 +397,13 @@ public class WeekView extends View {
 
         // Hide everything in the first cell (top left corner).
         //canvas.drawRect(0, 0, mTimeTextWidth + mHeaderColumnPadding * 2, mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
-        monthRect = new RectF(0, 0, mTimeTextWidth + mHeaderColumnPadding * 2, mHeaderTextHeight + mHeaderRowPadding * 2); // Edited by Lakshmi
+        monthRect = new RectF(0, 0, mTimeTextWidth + mHeaderColumnPadding * 8, mHeaderTextHeight + mHeaderRowPadding * 2.2f); // Edited by Lakshmi
         canvas.drawRect(monthRect, mHeaderBackgroundPaint); // Edited by Lakshmi
 
         // Edited by Lakshmi
         if (dayDate != null) {
-            canvas.drawText(dayDate[0], mHeaderColumnPadding * 4, mHeaderRowPadding, mHeaderTextPaint);
-            canvas.drawText(dayDate[1], mHeaderColumnPadding * 4, mHeaderRowPadding * 2, mHeaderTextPaint);
+            canvas.drawText(dayDate[0], mHeaderColumnPadding * 6, mHeaderRowPadding *1.5f, mHeaderTextPaint);
+            canvas.drawText(dayDate[1], mHeaderColumnPadding * 6, mHeaderRowPadding * 2.5f, mHeaderTextPaint);
         }
         // Hide anything that is in the bottom margin of the header row.
         canvas.drawRect(mHeaderColumnWidth, mHeaderTextHeight * 2 + mHeaderRowPadding * 2, getWidth(), mHeaderRowPadding * 2 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight / 2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);// Change
@@ -421,14 +423,14 @@ public class WeekView extends View {
         }
 
         // Draw the background color for the header column.
-        canvas.drawRect(0, mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderColumnWidth, getHeight(), mHeaderColumnBackgroundPaint);
+        canvas.drawRect(0, mHeaderTextHeight + mHeaderRowPadding * 3, mHeaderColumnWidth, getHeight(), mHeaderColumnBackgroundPaint); // Edited by Muddassir
 
         // Calculate initial hours and quarter
         int initHour = mStartMinute / 60;
         int quarter = (mStartMinute % 60) / 15;
         /*for (int i = 0; i < 24; i++) {*/ // Changed
         for (int i = 0; i < quarterCount; i++) { // Edited by Muddassir
-            float top = mHeaderTextHeight + mHeaderRowPadding * 2 + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom;
+            float top = mHeaderTextHeight + mHeaderRowPadding * 2.3f + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom; // Edited by Muddassir
             if (quarter == 4) {
                 quarter = 0;
                 initHour++;
@@ -440,14 +442,18 @@ public class WeekView extends View {
             if (time == null)
                 throw new IllegalStateException("A DateTimeInterpreter must not return null time");
             if (top < getHeight())
-                canvas.drawText(time, mTimeTextWidth + mHeaderColumnPadding, top + mTimeTextHeight, mTimeTextPaint);
+                canvas.drawText(time, mTimeTextWidth + mHeaderColumnPadding * 3, top + mTimeTextHeight, mTimeTextPaint); // Edited by Muddassir
         }
     }
 
     private String[] drawHeaderRowAndEvents(Canvas canvas) {
         // Calculate the available width for each day.
-        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 2;
+        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 8; // Edited by Muddassir
         mWidthPerDay = getWidth() - mHeaderColumnWidth - mColumnGap * (mNumberOfVisibleDays - 1);
+
+        // To make the tiles square shaped - Added by Muddassir
+        mHourHeight = (int)mWidthPerDay / 7;
+
         // To record the column width of the one day view - Added by Muddassir
         if (mIsFirstDraw) {
             mWidthPerDayOriginal = mWidthPerDay;
@@ -541,7 +547,7 @@ public class WeekView extends View {
         }
 
         // Draw the header background.
-        canvas.drawRect(0, 0, getWidth(), mHeaderTextHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint);
+        canvas.drawRect(0, 0, getWidth(), mHeaderTextHeight + mHeaderRowPadding * 3, mHeaderBackgroundPaint);
 
         // Draw the header row texts.
         startPixel = startFromPixel;
@@ -577,7 +583,7 @@ public class WeekView extends View {
                 Paint circlePaint = new Paint();
                 circlePaint.setAntiAlias(true);
                 if (sameDay) {
-                    circlePaint.setColor(Color.GRAY);
+                    circlePaint.setColor(Color.parseColor(TODAY_COLOR));
                 } else {
                     circlePaint.setColor(Color.WHITE);
                 }
