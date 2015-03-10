@@ -3,6 +3,7 @@ package com.roomorama.caldroid;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,9 @@ public class CaldroidGridAdapter extends BaseAdapter {
     protected Context context;
     protected ArrayList<DateTime> disableDates;
     protected ArrayList<DateTime> selectedDates;
+
+    // Typeface for text - Added by Muddassir
+    Typeface ralewayRegular;
 
     // Use internally, to make the search for date faster instead of using
     // indexOf methods on ArrayList
@@ -231,6 +235,7 @@ public class CaldroidGridAdapter extends BaseAdapter {
      */
     protected void customizeTextView(int position, TextView cellView) {
         cellView.setTextColor(Color.BLACK);
+        cellView.setTypeface(ralewayRegular); // Added by Muddassir
 
         // Get the padding of cell so that it can be restored later
         int topPadding = cellView.getPaddingTop();
@@ -326,6 +331,9 @@ public class CaldroidGridAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         TextView cellView = (TextView) convertView;
+
+        ralewayRegular = Typeface.createFromAsset(context.getAssets(),
+                "fonts/RalewayRegular.ttf"); // Added by Muddassir
 
         // For reuse
         if (convertView == null) {

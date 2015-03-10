@@ -1,6 +1,5 @@
 package com.alamkanak.weekview.sample;
 
-import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -11,7 +10,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,11 +44,18 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     // This map is used to store the events
     HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
 
+    // Typeface for text - Added by Muddassir
+    Typeface ralewayLight, ralewayRegular;
+    TextView monthText;
+
     // Day view & Week view object
     private WeekView mWeekView;
 
     // Month view fragment object
     private CustomMonthCalendar customMonthCalendar;
+
+    // For button background toggle
+    private Button buttonDayView, buttonWeekView, buttonMonthView;
 
     // Month view listener
     final CaldroidListener listener = new CaldroidListener() {
@@ -70,6 +76,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             mWeekView.setVisibility(View.VISIBLE);
             mWeekView.setNumberOfVisibleDays(1);
             mWeekView.goToDate(requiredDate);
+            changeButtonBackground(buttonDayView);
         }
 
         @Override
@@ -89,9 +96,9 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         @Override
         public void onCaldroidViewCreated() {
             if (customMonthCalendar.getLeftArrowButton() != null) {
-                Toast.makeText(getApplicationContext(),
-                        "Caldroid view is created", Toast.LENGTH_SHORT)
-                        .show();
+                monthText = customMonthCalendar.getMonthTitleTextView();
+                monthText.setTypeface(ralewayLight); // Added by Muddassir
+
             }
         }
 
@@ -99,14 +106,23 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     private FragmentManager manager = null;
     private SimpleDateFormat formatter;
 
-    // Type face for custom font
-    /*Typeface ralewayTypeface = Typeface.createFromAsset(getAssets(),
-            "fonts/Raleway-Light.ttf");*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ralewayLight = Typeface.createFromAsset(getAssets(),
+                "fonts/RalewayLight.ttf"); // Added by Muddassir
+        ralewayRegular = Typeface.createFromAsset(getAssets(),
+                "fonts/RalewayRegular.ttf"); // Added by Muddassir
+
+        buttonDayView = (Button)findViewById(R.id.action_day_view);
+        buttonWeekView = (Button)findViewById(R.id.action_week_view);
+        buttonMonthView = (Button)findViewById(R.id.action_month_view);
+        buttonDayView.setTypeface(ralewayRegular);
+        buttonWeekView.setTypeface(ralewayRegular);
+        buttonMonthView.setTypeface(ralewayRegular);
+
         formatter = new SimpleDateFormat("dd MMM yyyy");
 
         // Get a reference for the week view in the layout.
@@ -123,10 +139,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
         // Set long press listener for events.
         mWeekView.setEventLongPressListener(this);
+
         mWeekView.setmEndMinute("19:30:00");
         mWeekView.setmStartMinute("09:30:00");
-        mWeekView.setEmptyViewClickListener(this);
-        mWeekView.setHourSeparatorColor(Color.WHITE);
+        mWeekView.setEmptyViewClickListener(this); // Added by Muddassir
 
         // Caldroid fragment for month view calendar
         customMonthCalendar = new CustomMonthCalendar();
@@ -158,14 +174,6 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             customMonthCalendar.setArguments(args);
 
         }*/
-
-        /*customMonthCalendar.setBackgroundResourceForDate(R.color.event_upcoming, date);
-        customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);*/
-        // Setup Caldroid
-        /*TextView textView = customMonthCalendar.getMonthTitleTextView();
-        textView.setTypeface(ralewayTypeface);
-
-        textView.setTypeface(ralewayTypeface);*/
         customMonthCalendar.setCaldroidListener(listener);
         getEventFromDatabase();
     }
@@ -205,6 +213,8 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                 // Set the number of visible days to one
                 mWeekView.setNumberOfVisibleDays(1);
 
+                changeButtonBackground(buttonDayView);
+
                 break;
 
             case R.id.action_week_view:
@@ -215,6 +225,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
                 // Set the number of visible days to seven
                 mWeekView.setNumberOfVisibleDays(7);
+                changeButtonBackground(buttonWeekView);
 
                 break;
 
@@ -227,7 +238,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                     args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
                     args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
                     args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-                    args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
+                    args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
 
 
                     //Uncomment this to customize startDayOfWeek
@@ -240,9 +251,17 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                 manager.beginTransaction()
                         .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
                 customMonthCalendar.refreshView();
-
+                changeButtonBackground(buttonMonthView);
                 break;
         }
+    }
+
+    // Change the background color of the selected button
+    public void changeButtonBackground(Button button) {
+        buttonDayView.setBackgroundColor(getResources().getColor(R.color.button_not_selected));
+        buttonWeekView.setBackgroundColor(getResources().getColor(R.color.button_not_selected));
+        buttonMonthView.setBackgroundColor(getResources().getColor(R.color.button_not_selected));
+        button.setBackgroundColor(getResources().getColor(R.color.button_selected));
     }
 
     @Override

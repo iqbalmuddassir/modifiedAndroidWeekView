@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentTop="true"
         android:orientation="horizontal"
         android:weightSum="3">
@@ -17,24 +17,30 @@
         <Button
             android:id="@+id/action_day_view"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:textColor="@color/caldroid_white"
+            android:background="@color/button_selected"
             android:onClick="onClick"
             android:text="@string/action_day_view" />
 
         <Button
             android:id="@+id/action_week_view"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:textColor="@color/caldroid_white"
+            android:background="@color/button_not_selected"
             android:onClick="onClick"
             android:text="@string/action_week_view" />
 
         <Button
             android:id="@+id/action_month_view"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:textColor="@color/caldroid_white"
+            android:background="@color/button_not_selected"
             android:onClick="onClick"
             android:text="@string/action_month_view" />
     </LinearLayout>
@@ -44,27 +50,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/button_container"
-        android:layout_margin="@dimen/abc_action_bar_subtitle_bottom_margin_material"
-        app:columnGap="5dp"
-        app:dayBackgroundColor="#05000000"
+        app:typeface="fonts/RalewayMedium.ttf"
+        app:columnGap="1dp"
         app:eventTextColor="@android:color/white"
-        app:headerColumnBackground="#ffffffff"
+        app:headerColumnBackground="@color/caldroid_white"
         app:headerColumnPadding="5dp"
-        app:headerColumnTextColor="#8f000000"
-        app:headerRowBackgroundColor="#FFFFFF"
+        app:headerColumnTextColor="@color/header_text_color"
+        app:headerRowBackgroundColor="@color/button_selected"
         app:headerRowPadding="15dp"
-        app:hourHeight="30dp"
         app:noOfVisibleDays="1"
         app:textSize="12sp"
-        app:todayBackgroundColor="#1848adff" />
-
-    <CalendarView
-        android:id="@+id/calendar_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/button_container"
-        android:layout_margin="@dimen/abc_action_bar_subtitle_bottom_margin_material"
-        android:visibility="gone"></CalendarView>
+        app:todayHeaderTextColor="@color/caldroid_white" />
 
     <LinearLayout
         android:id="@+id/calendar_layout"

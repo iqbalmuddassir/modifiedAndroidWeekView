@@ -1167,6 +1167,7 @@ public class CaldroidFragment extends DialogFragment {
         weekdayGridView = (GridView) view.findViewById(R.id.weekday_gridview);
         WeekdayArrayAdapter weekdaysAdapter = getNewWeekdayAdapter();
         weekdayGridView.setAdapter(weekdaysAdapter);
+        WeekdayArrayAdapter.textColor = Color.BLACK; // Added by Muddassir
 
         // Setup all the pages of date grid views. These pages are recycled
         setupDateGridPages(view);

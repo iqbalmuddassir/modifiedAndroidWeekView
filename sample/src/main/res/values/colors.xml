@@ -4,6 +4,10 @@
     <color name="event_color_02">#f57f68</color>
     <color name="event_color_03">#87d288</color>
     <color name="event_color_04">#f8b552</color>
-    <color name="event_color_upcoming">#bb1a35</color>
-    <color name="event_color_past">#e23351</color>
+    <color name="event_color_upcoming">#940C29</color>
+    <color name="event_color_past">#B83B4C</color>
+    <color name="button_selected">#E0144E</color>
+    <color name="button_not_selected">#353F49</color>
+    <color name="blank_space">#EBECEC</color>
+    <color name="header_text_color">#353F49</color>
 </resources>
