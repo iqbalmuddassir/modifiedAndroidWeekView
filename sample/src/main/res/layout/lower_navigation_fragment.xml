@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#E23351"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:weightSum="5">
+
+    <ImageButton
+        android:id="@+id/dashboard"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/home_icon" />
+
+    <View
+        android:id="@+id/separator1"
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="#EA6A80"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/appointment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/clock_icon" />
+
+    <View
+        android:id="@+id/separator2"
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="#EA6A80"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/calendar"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/calendar_icon" />
+
+    <View
+        android:id="@+id/separator3"
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="#EA6A80"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/user"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/customer_icon" />
+
+    <View
+        android:id="@+id/separator4"
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="#EA6A80"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/menu"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/more_icon" />
+
+    <View
+        android:id="@+id/separator5"
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="#EA6A80"
+        android:visibility="visible" />
+</LinearLayout>

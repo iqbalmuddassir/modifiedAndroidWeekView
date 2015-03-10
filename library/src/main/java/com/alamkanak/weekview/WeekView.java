@@ -24,7 +24,6 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.OverScroller;
 import android.widget.Scroller;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -128,6 +127,17 @@ public class WeekView extends View {
     private MonthChangeListener mMonthChangeListener;
     private EmptyViewClickListener mEmptyViewClickListener;
     private EmptyViewLongPressListener mEmptyViewLongPressListener;
+    private ChangeBackgroundListener mBackgroundListener;
+
+
+    public ChangeBackgroundListener getmBackgroundListener() {
+        return mBackgroundListener;
+    }
+
+    public void setmBackgroundListener(ChangeBackgroundListener mBackgroundListener) {
+        this.mBackgroundListener = mBackgroundListener;
+    }
+
     private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -455,7 +465,7 @@ public class WeekView extends View {
         int quarter = (mStartMinute % 60) / 15;
         /*for (int i = 0; i < 24; i++) {*/ // Changed
         for (int i = 0; i < quarterCount; i++) { // Edited by Muddassir
-            float top = mHeaderTextHeight + mHeaderRowPadding * 68/15 + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom; // to change top of column header, Edited by Muddassir
+            float top = mHeaderTextHeight + mHeaderRowPadding * 68 / 15 + mCurrentOrigin.y + mHourHeight * i + mHeaderMarginBottom; // to change top of column header, Edited by Muddassir
             if (quarter == 4) {
                 quarter = 0;
                 initHour++;
@@ -613,6 +623,7 @@ public class WeekView extends View {
                 canvas.drawText(dateAndDay[3], startPixel + mWidthPerDay / 2.5f,
                         mHeaderTextHeight * 4f + mHeaderRowPadding, newPaint);
                 newPaint.setTextSize(mTextSize * 3);
+                newPaint.setFakeBoldText(true);
                 canvas.drawText(dateAndDay[0], startPixel + mWidthPerDay / 5,
                         mHeaderTextHeight * 3.5f + mHeaderRowPadding, newPaint);
             } else {
@@ -694,7 +705,7 @@ public class WeekView extends View {
                     && x > start && x < startPixel + mWidthPerDay) {
                 Calendar day = (Calendar) mToday.clone();
                 day.add(Calendar.DATE, dayNumber - 1);
-                float pixelsFromZero = y - mCurrentOrigin.y - mHeaderTextHeight - mHeaderRowPadding * 70 / 15 - mTimeTextHeight / 2 - mHeaderMarginBottom;// Changed
+                float pixelsFromZero = y - mCurrentOrigin.y - mHeaderTextHeight - mHeaderRowPadding * 60 / 15 - mTimeTextHeight / 2 - mHeaderMarginBottom;// Changed
 
                 // changed for quarter - Edited by Muddassir
                 int mHourHeight = this.mHourHeight * 4;
@@ -724,10 +735,10 @@ public class WeekView extends View {
                     // Calculate top.
                     quarterCount = ((mEndMinute - mStartMinute) / 15);  // Adjust event height
                     //float top = mHourHeight * 24 * mEventRects.get(i).top / 1440 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 2 + mHeaderMarginBottom + mTimeTextHeight / 2 + mEventMarginVertical;
-                    float top = ((mEventRects.get(i).top - mStartMinute) * mHourHeight) / 15 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 60/15 + mHeaderMarginBottom + mTimeTextHeight / 2; // Edited by Lakshmi
+                    float top = ((mEventRects.get(i).top - mStartMinute) * mHourHeight) / 15 + mCurrentOrigin.y + mHeaderTextHeight + mHeaderRowPadding * 60 / 15 + mHeaderMarginBottom + mTimeTextHeight / 2; // Edited by Lakshmi
                     float originalTop = top;
-                    if (top < mHeaderTextHeight + mHeaderRowPadding * 60/15 + mHeaderMarginBottom + mTimeTextHeight / 2)
-                        top = mHeaderTextHeight + mHeaderRowPadding * 60/15 + mHeaderMarginBottom + mTimeTextHeight / 2;
+                    if (top < mHeaderTextHeight + mHeaderRowPadding * 60 / 15 + mHeaderMarginBottom + mTimeTextHeight / 2)
+                        top = mHeaderTextHeight + mHeaderRowPadding * 60 / 15 + mHeaderMarginBottom + mTimeTextHeight / 2;
 
                     // Calculate bottom.
                     float bottom = mEventRects.get(i).bottom;
@@ -736,20 +747,26 @@ public class WeekView extends View {
 
                     // Calculate left and right.
                     float left = startFromPixel + mEventRects.get(i).left * mWidthPerDay;
-                    if (left < startFromPixel)
-                        left += mOverlappingEventGap;
+
+                    // Removed this to avoid overlapping events
+                    /*if (left < startFromPixel)
+                        left += mOverlappingEventGap;*/
+
                     float originalLeft = left;
                     float right = left + mEventRects.get(i).width * mWidthPerDay;
-                    if (right < startFromPixel + mWidthPerDay)
-                        right -= mOverlappingEventGap;
+
+                    // Removed this to avoid overlapping events
+                    /*if (right < startFromPixel + mWidthPerDay)
+                        right -= mOverlappingEventGap;*/
+
                     if (left < mHeaderColumnWidth) left = mHeaderColumnWidth;
 
                     // Draw the event and the event name on top of it.
                     RectF eventRectF = new RectF(left, top, right, bottom);
-                    if (bottom > mHeaderTextHeight + mHeaderRowPadding * 68 / 15 + mHeaderMarginBottom + mTimeTextHeight / 2 && left < right && // Changed
+                    if (bottom > mHeaderTextHeight + mHeaderRowPadding * 60 / 15 + mHeaderMarginBottom + mTimeTextHeight / 2 && left < right && // Changed
                             eventRectF.right > mHeaderColumnWidth &&
                             eventRectF.left < getWidth() &&
-                            eventRectF.bottom > mHeaderTextHeight + mHeaderRowPadding * 68 / 15 + mTimeTextHeight / 2 + mHeaderMarginBottom && //Changed
+                            eventRectF.bottom > mHeaderTextHeight + mHeaderRowPadding * 60 / 15 + mTimeTextHeight / 2 + mHeaderMarginBottom && //Changed
                             eventRectF.top < getHeight() &&
                             left < right
                             ) {
@@ -880,7 +897,18 @@ public class WeekView extends View {
                     eventRects.add(eventRect);
             }
 
-            computePositionOfEvents(eventRects);
+            // Added this loop to avoid overlapping events
+            for (EventRect column : eventRects) {
+
+                EventRect eventRect = column;
+                eventRect.width = 1f;
+                eventRect.left = 0;
+                eventRect.top = eventRect.event.getStartTime().get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.getStartTime().get(Calendar.MINUTE);
+                eventRect.bottom = eventRect.event.getEndTime().get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.getEndTime().get(Calendar.MINUTE);
+                mEventRects.add(eventRect);
+
+            }
+            // computePositionOfEvents(eventRects); // Removed this to avoid overlapping events
             dayCounter.add(Calendar.DATE, 1);
         }
     }
@@ -1508,6 +1536,8 @@ public class WeekView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+        // this is to move to day view on date touch of week view - Added by Lakshmi
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             for (RectF rectF : rectList) {
                 if (rectF.contains(event.getX(), event.getY())) {
@@ -1516,6 +1546,7 @@ public class WeekView extends View {
                     rectanglesWithDate.clear();
                     rectList.clear();
                     notifyDatasetChanged();
+                    mBackgroundListener.changeBackground();
                     break;
                 }
             }
@@ -1692,7 +1723,10 @@ public class WeekView extends View {
         public void onEmptyViewClicked(Calendar time);
     }
 
-
+    // This will allow us to toggle the button in MainActivity
+    public interface ChangeBackgroundListener {
+        public void changeBackground();
+    }
     /////////////////////////////////////////////////////////////////
     //
     //      Helper methods.

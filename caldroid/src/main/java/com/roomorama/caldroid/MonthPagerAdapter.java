@@ -1,10 +1,10 @@
 package com.roomorama.caldroid;
 
-import java.util.ArrayList;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import java.util.ArrayList;
 
 /**
  * MonthPagerAdapter holds 4 fragments, which provides fragment for current
@@ -16,6 +16,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 public class MonthPagerAdapter extends FragmentPagerAdapter {
 
     private ArrayList<DateGridFragment> fragments;
+
+    public MonthPagerAdapter(FragmentManager fm) {
+        super(fm);
+    }
 
     // Lazily create the fragments
     public ArrayList<DateGridFragment> getFragments() {
@@ -30,10 +34,6 @@ public class MonthPagerAdapter extends FragmentPagerAdapter {
 
     public void setFragments(ArrayList<DateGridFragment> fragments) {
         this.fragments = fragments;
-    }
-
-    public MonthPagerAdapter(FragmentManager fm) {
-        super(fm);
     }
 
     @Override

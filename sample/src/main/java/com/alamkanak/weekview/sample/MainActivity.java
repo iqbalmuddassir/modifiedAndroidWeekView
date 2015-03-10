@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.alamkanak.weekview.fragment.BottomNavigationFragment;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidListener;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * Website: http://april-shower.com
  */
 public class MainActivity extends FragmentActivity implements WeekView.MonthChangeListener,
-        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener {
+        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener,WeekView.ChangeBackgroundListener {
 
     // Constants for month identifier - Added by Muddassir
     private static final int JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8,
@@ -46,7 +47,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
     // Typeface for text - Added by Muddassir
     Typeface ralewayLight, ralewayRegular;
-    TextView monthText;
+    TextView monthText, headerTitle, stylistOptionTitle;
 
     // Day view & Week view object
     private WeekView mWeekView;
@@ -97,8 +98,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         public void onCaldroidViewCreated() {
             if (customMonthCalendar.getLeftArrowButton() != null) {
                 monthText = customMonthCalendar.getMonthTitleTextView();
-                monthText.setTypeface(ralewayLight); // Added by Muddassir
-
+                monthText.setTypeface(ralewayRegular); // Added by Muddassir
             }
         }
 
@@ -116,12 +116,17 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         ralewayRegular = Typeface.createFromAsset(getAssets(),
                 "fonts/RalewayRegular.ttf"); // Added by Muddassir
 
-        buttonDayView = (Button)findViewById(R.id.action_day_view);
-        buttonWeekView = (Button)findViewById(R.id.action_week_view);
-        buttonMonthView = (Button)findViewById(R.id.action_month_view);
+        // To record the button pressed - Added by Muddassir
+        headerTitle = (TextView) findViewById(R.id.header_title);
+        stylistOptionTitle = (TextView) findViewById(R.id.stylist_option_title);
+        buttonDayView = (Button) findViewById(R.id.action_day_view);
+        buttonWeekView = (Button) findViewById(R.id.action_week_view);
+        buttonMonthView = (Button) findViewById(R.id.action_month_view);
         buttonDayView.setTypeface(ralewayRegular);
         buttonWeekView.setTypeface(ralewayRegular);
         buttonMonthView.setTypeface(ralewayRegular);
+        headerTitle.setTypeface(ralewayRegular);
+        stylistOptionTitle.setTypeface(ralewayRegular);
 
         formatter = new SimpleDateFormat("dd MMM yyyy");
 
@@ -139,6 +144,9 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
         // Set long press listener for events.
         mWeekView.setEventLongPressListener(this);
+
+        // to toggle button
+        mWeekView.setmBackgroundListener(this);
 
         mWeekView.setmEndMinute("19:30:00");
         mWeekView.setmStartMinute("09:30:00");
@@ -388,6 +396,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         eventMar.add(event);
         date = startTime.getTime();
         customMonthCalendar.setBackgroundResourceForDate(R.color.event_color_upcoming, date);
+        //customMonthCalendar.setBackgroundResourceForDate(R.drawable.event_cell_background, date);
         customMonthCalendar.setTextColorForDate(R.color.caldroid_white, date);
         eventMap.put(MAR, eventMar);
 
@@ -449,5 +458,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         eventMap.put(month + 1, events);
         mWeekView.notifyDatasetChanged();
         return true;
+    }
+
+    @Override
+    public void changeBackground() {
+        changeButtonBackground(buttonDayView);
     }
 }

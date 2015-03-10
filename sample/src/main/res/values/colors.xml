@@ -10,4 +10,5 @@
     <color name="button_not_selected">#353F49</color>
     <color name="blank_space">#EBECEC</color>
     <color name="header_text_color">#353F49</color>
+    <color name="cell_separator">#EBECEF</color>
 </resources>

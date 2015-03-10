@@ -15,4 +15,9 @@
     <!-- A really bright Holo shade of blue -->
     <color name="caldroid_sky_blue">#FFA3E8F7</color>
 
+    <!-- For Background and text color -->
+    <color name="caldroid_background_color">#E0144E</color>
+    <color name="blank_space">#EBECEC</color>
+    <!--<color name="text_color">#353F49</color>-->
+
 </resources>

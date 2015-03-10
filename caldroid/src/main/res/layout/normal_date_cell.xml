@@ -6,6 +6,5 @@
     android:background="@drawable/cell_bg"
     android:gravity="center"
     android:textSize="14sp"
-    android:textStyle="bold"
-    android:padding="5dp"/>
+    android:textStyle="bold"/>
 

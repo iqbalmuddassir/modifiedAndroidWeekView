@@ -30,15 +30,10 @@ public class CaldroidGridAdapter extends BaseAdapter {
     protected Context context;
     protected ArrayList<DateTime> disableDates;
     protected ArrayList<DateTime> selectedDates;
-
-    // Typeface for text - Added by Muddassir
-    Typeface ralewayRegular;
-
     // Use internally, to make the search for date faster instead of using
     // indexOf methods on ArrayList
     protected HashMap<DateTime, Integer> disableDatesMap = new HashMap<DateTime, Integer>();
     protected HashMap<DateTime, Integer> selectedDatesMap = new HashMap<DateTime, Integer>();
-
     protected DateTime minDateTime;
     protected DateTime maxDateTime;
     protected DateTime today;
@@ -46,7 +41,6 @@ public class CaldroidGridAdapter extends BaseAdapter {
     protected boolean sixWeeksInCalendar;
     protected boolean squareTextViewCell;
     protected Resources resources;
-
     /**
      * caldroidData belongs to Caldroid
      */
@@ -55,6 +49,32 @@ public class CaldroidGridAdapter extends BaseAdapter {
      * extraData belongs to client
      */
     protected HashMap<String, Object> extraData;
+    // Typeface for text - Added by Muddassir
+    Typeface ralewayRegular;
+
+    /**
+     * Constructor
+     *
+     * @param context
+     * @param month
+     * @param year
+     * @param caldroidData
+     * @param extraData
+     */
+    public CaldroidGridAdapter(Context context, int month, int year,
+                               HashMap<String, Object> caldroidData,
+                               HashMap<String, Object> extraData) {
+        super();
+        this.month = month;
+        this.year = year;
+        this.context = context;
+        this.caldroidData = caldroidData;
+        this.extraData = extraData;
+        this.resources = context.getResources();
+
+        // Get data from caldroidData
+        populateFromCaldroidData();
+    }
 
     public void setAdapterDateTime(DateTime dateTime) {
         this.month = dateTime.getMonth();
@@ -117,30 +137,6 @@ public class CaldroidGridAdapter extends BaseAdapter {
 
     public void setExtraData(HashMap<String, Object> extraData) {
         this.extraData = extraData;
-    }
-
-    /**
-     * Constructor
-     *
-     * @param context
-     * @param month
-     * @param year
-     * @param caldroidData
-     * @param extraData
-     */
-    public CaldroidGridAdapter(Context context, int month, int year,
-                               HashMap<String, Object> caldroidData,
-                               HashMap<String, Object> extraData) {
-        super();
-        this.month = month;
-        this.year = year;
-        this.context = context;
-        this.caldroidData = caldroidData;
-        this.extraData = extraData;
-        this.resources = context.getResources();
-
-        // Get data from caldroidData
-        populateFromCaldroidData();
     }
 
     /**
