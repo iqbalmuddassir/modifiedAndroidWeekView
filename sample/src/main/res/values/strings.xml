@@ -8,5 +8,8 @@
     <string name="action_week_view">Week</string>
     <string name="action_month_view">Month</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_swipe_button">SwipeButton</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

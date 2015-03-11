@@ -23,6 +23,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':library')
     compile project(':caldroid')
+    compile project(':swipeMenuListView')
     compile 'com.android.support:appcompat-v7:21.0.0'
-    //compile 'com.roomorama:caldroid:1.1.8'
 }

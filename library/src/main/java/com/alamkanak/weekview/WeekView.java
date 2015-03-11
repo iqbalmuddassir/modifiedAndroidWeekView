@@ -24,6 +24,7 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.OverScroller;
 import android.widget.Scroller;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,17 +128,6 @@ public class WeekView extends View {
     private MonthChangeListener mMonthChangeListener;
     private EmptyViewClickListener mEmptyViewClickListener;
     private EmptyViewLongPressListener mEmptyViewLongPressListener;
-    private ChangeBackgroundListener mBackgroundListener;
-
-
-    public ChangeBackgroundListener getmBackgroundListener() {
-        return mBackgroundListener;
-    }
-
-    public void setmBackgroundListener(ChangeBackgroundListener mBackgroundListener) {
-        this.mBackgroundListener = mBackgroundListener;
-    }
-
     private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -237,12 +227,12 @@ public class WeekView extends View {
             }
         }
     };
+    private ChangeBackgroundListener mBackgroundListener;
     private DateTimeInterpreter mDateTimeInterpreter;
 
     public WeekView(Context context) {
         this(context, null);
     }
-
     public WeekView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -284,6 +274,14 @@ public class WeekView extends View {
         }
 
         init();
+    }
+
+    public ChangeBackgroundListener getmBackgroundListener() {
+        return mBackgroundListener;
+    }
+
+    public void setmBackgroundListener(ChangeBackgroundListener mBackgroundListener) {
+        this.mBackgroundListener = mBackgroundListener;
     }
 
     public void setTextTypeface(Typeface textTypeface) {
@@ -617,10 +615,11 @@ public class WeekView extends View {
                 newPaint.setTypeface(mHeaderTextPaint.getTypeface());
                 newPaint.setColor(Color.WHITE);
                 newPaint.setTextSize(mTextSize * 1.5f);
-                canvas.drawText(dateAndDay[1] + " " + dateAndDay[2], startPixel + mWidthPerDay / 2.5f,
+                canvas.drawText(dateAndDay[1].toUpperCase().substring(0, 3) + " "
+                                + dateAndDay[2], startPixel + mWidthPerDay / 2.6f,
                         mHeaderTextHeight * 2.5f + mHeaderRowPadding, newPaint);
                 newPaint.setTextSize(mTextSize * 1f);
-                canvas.drawText(dateAndDay[3], startPixel + mWidthPerDay / 2.5f,
+                canvas.drawText(dateAndDay[3].toUpperCase(), startPixel + mWidthPerDay / 2.6f,
                         mHeaderTextHeight * 4f + mHeaderRowPadding, newPaint);
                 newPaint.setTextSize(mTextSize * 3);
                 newPaint.setFakeBoldText(true);
@@ -1162,7 +1161,7 @@ public class WeekView extends View {
                          * Edited by Muddassir
                          */
                         if (mNumberOfVisibleDays == 1) { // New code
-                            sdf = new SimpleDateFormat("dd,MMMM,yyyy,EEEEE");
+                            sdf = new SimpleDateFormat("dd,MMMM,yyyy,EEEE");
                             String dayName = sdf.format(date.getTime());
                             return dayName;
                         }

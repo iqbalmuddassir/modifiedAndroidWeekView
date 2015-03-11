@@ -1,5 +1,6 @@
 package com.alamkanak.weekview.sample;
 
+import android.content.Intent;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -7,8 +8,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,7 +15,7 @@ import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
-import com.alamkanak.weekview.fragment.BottomNavigationFragment;
+import com.alamkanak.weekview.activities.SimpleActivity;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidListener;
 
@@ -33,7 +32,7 @@ import java.util.List;
  * Website: http://april-shower.com
  */
 public class MainActivity extends FragmentActivity implements WeekView.MonthChangeListener,
-        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener,WeekView.ChangeBackgroundListener {
+        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener, WeekView.ChangeBackgroundListener {
 
     // Constants for month identifier - Added by Muddassir
     private static final int JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8,
@@ -186,24 +185,6 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         getEventFromDatabase();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_today:
-                mWeekView.goToToday();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public void onClick(View view) {
         //manager = null;
         mWeekView.goToToday();
@@ -260,6 +241,15 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                         .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
                 customMonthCalendar.refreshView();
                 changeButtonBackground(buttonMonthView);
+                break;
+
+            case R.id.back_button:
+                Intent intent = new Intent(this, SimpleActivity.class);
+                startActivity(intent);
+                break;
+
+            case R.id.show_list_button:
+
                 break;
         }
     }

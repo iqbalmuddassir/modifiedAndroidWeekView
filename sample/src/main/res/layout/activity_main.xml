@@ -15,10 +15,12 @@
         android:layout_alignParentTop="true">
 
         <ImageButton
+            android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="23dp"
             android:layout_centerVertical="true"
+            android:onClick="onClick"
             android:background="@color/caldroid_transparent"
             android:src="@drawable/back"/>
         <TextView
@@ -39,11 +41,13 @@
         android:background="@color/caldroid_white">
 
         <ImageButton
+            android:id="@+id/show_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="23dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
+            android:onClick="onClick"
             android:background="@color/caldroid_transparent"
             android:src="@drawable/more"/>
         <TextView
