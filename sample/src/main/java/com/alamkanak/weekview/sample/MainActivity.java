@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -32,21 +35,34 @@ import java.util.List;
  * Website: http://april-shower.com
  */
 public class MainActivity extends FragmentActivity implements WeekView.MonthChangeListener,
-        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewClickListener, WeekView.ChangeBackgroundListener {
+        WeekView.EventClickListener, WeekView.EventLongPressListener,
+        WeekView.EmptyViewClickListener, WeekView.EmptyViewLongPressListener,
+        WeekView.ChangeBackgroundListener {
 
     // Constants for month identifier - Added by Muddassir
     private static final int JAN = 1, FEB = 2, MAR = 3, APR = 4, MAY = 5, JUN = 6, JUL = 7, AUG = 8,
             SEP = 9, OCT = 10, NOV = 11, DEC = 12;
+    private static final int DAY_VIEW = 1;
+    private static final int WEEK_VIEW = 2;
+    private static final int MONTH_VIEW = 3;
+
+    // For event Swipe - Added by Muddassir
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     // This is the counter for event count - can be removed after testing
     private static int count = 1;
 
+    // To keep record of viewType being shown - Added by Muddassir
+    private static int viewType;
     // This map is used to store the events
     HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
-
     // Typeface for text - Added by Muddassir
     Typeface ralewayLight, ralewayRegular;
     TextView monthText, headerTitle, stylistOptionTitle;
+    private View.OnTouchListener gestureListener;
+    private GestureDetectorCompat leftGestureDetector, rightGestureDetector, previousGesture;
 
     // Day view & Week view object
     private WeekView mWeekView;
@@ -77,13 +93,13 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             mWeekView.setNumberOfVisibleDays(1);
             mWeekView.goToDate(requiredDate);
             changeButtonBackground(buttonDayView);
+
+            // Set the view type to Day view
+            viewType = DAY_VIEW;
         }
 
         @Override
         public void onChangeMonth(int month, int year) {
-            /*String text = "month: " + month + " year: " + year;
-            Toast.makeText(getApplicationContext(), text,
-                    Toast.LENGTH_SHORT).show();*/
         }
 
         @Override
@@ -102,14 +118,27 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         }
 
     };
+
+    // Variables to be used in the program - Added by Muddassir
     private FragmentManager manager = null;
     private SimpleDateFormat formatter;
+    private Date[] startEndTime;
+    private WeekViewEvent event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initComponents();
+    }
+
+    // Initialize all the required components
+    private void initComponents() {
+        // Set the view type to Day view
+        viewType = DAY_VIEW;
+
+        // Initialise the typefaces
         ralewayLight = Typeface.createFromAsset(getAssets(),
                 "fonts/RalewayLight.ttf"); // Added by Muddassir
         ralewayRegular = Typeface.createFromAsset(getAssets(),
@@ -147,48 +176,32 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         // to toggle button
         mWeekView.setmBackgroundListener(this);
 
+        // Setup start and end time of the calendar view - Added by Muddassir
         mWeekView.setmEndMinute("19:30:00");
         mWeekView.setmStartMinute("09:30:00");
         mWeekView.setEmptyViewClickListener(this); // Added by Muddassir
+        mWeekView.setEmptyViewLongPressListener(this); // Added by Muddassir
 
         // Caldroid fragment for month view calendar
         customMonthCalendar = new CustomMonthCalendar();
-        /*Date date = new Date();
-        // If Activity is created after rotation
-        if (savedInstanceState != null) {
-            customMonthCalendar.restoreStatesFromKey(savedInstanceState,
-                    "CALDROID_SAVED_STATE");
-        }
-        // If activity is created from fresh
-        else {
-            Bundle args = new Bundle();
-            Calendar cal = Calendar.getInstance();
-            date = cal.getTime();
-            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-            args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-            args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
 
-
-            // Uncomment this to customize startDayOfWeek
-            // args.putInt(CaldroidFragment.START_DAY_OF_WEEK,
-            // CaldroidFragment.TUESDAY); // Tuesday
-
-
-            // Uncomment this line to use Caldroid in compact mode
-            // args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
-
-            customMonthCalendar.setArguments(args);
-
-        }*/
         customMonthCalendar.setCaldroidListener(listener);
+
+        // Fetch all events
         getEventFromDatabase();
+
+        // Gesture detection for left swipe
+        leftGestureDetector = new GestureDetectorCompat(this, new MyLeftGestureDetector());
+
+        // Gesture detection for right swipe
+        rightGestureDetector = new GestureDetectorCompat(this, new MyRightGestureDetector());
     }
 
     public void onClick(View view) {
-        //manager = null;
+
         mWeekView.goToToday();
         switch (view.getId()) {
+            // When Day view is clicked
             case R.id.action_day_view:
                 getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
                 mWeekView.setVisibility(View.VISIBLE);
@@ -201,11 +214,13 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
                 // Set the number of visible days to one
                 mWeekView.setNumberOfVisibleDays(1);
+                viewType = DAY_VIEW;
 
+                // Change the button colors - Added by Muddassir
                 changeButtonBackground(buttonDayView);
-
                 break;
 
+            // When Week view is clicked
             case R.id.action_week_view:
                 getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
                 mWeekView.setVisibility(View.VISIBLE);
@@ -214,12 +229,15 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
                 // Set the number of visible days to seven
                 mWeekView.setNumberOfVisibleDays(7);
+                viewType = WEEK_VIEW;
                 changeButtonBackground(buttonWeekView);
-
                 break;
 
+            // When Month view is clicked
             case R.id.action_month_view:
+                viewType = MONTH_VIEW;
                 mWeekView.setVisibility(View.GONE);
+
                 // open the month view calendar
                 if (manager == null) {
                     Bundle args = new Bundle();
@@ -228,7 +246,6 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                     args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
                     args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
                     args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
-
 
                     //Uncomment this to customize startDayOfWeek
                 /*args.putInt(CaldroidFragment.START_DAY_OF_WEEK,
@@ -240,21 +257,22 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                 manager.beginTransaction()
                         .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
                 customMonthCalendar.refreshView();
+                viewType = WEEK_VIEW;
                 changeButtonBackground(buttonMonthView);
                 break;
 
             case R.id.back_button:
-                Intent intent = new Intent(this, SimpleActivity.class);
-                startActivity(intent);
+
                 break;
 
             case R.id.show_list_button:
-
+                Intent intent = new Intent(this, SimpleActivity.class);
+                startActivity(intent);
                 break;
         }
     }
 
-    // Change the background color of the selected button
+    // Change the background color of the selected button - Added by Muddassir
     public void changeButtonBackground(Button button) {
         buttonDayView.setBackgroundColor(getResources().getColor(R.color.button_not_selected));
         buttonWeekView.setBackgroundColor(getResources().getColor(R.color.button_not_selected));
@@ -277,52 +295,39 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
     @Override
     public void onEventClick(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(MainActivity.this, "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(MainActivity.this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+        this.event = event;
+        if (viewType == DAY_VIEW) {
+            /** This stores the previous gesture detector component attached to WeekView
+             *  Added by Muddassir
+             */
+            gestureListener = new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return leftGestureDetector.onTouchEvent(event);
+                }
+            };
+            previousGesture = mWeekView.getmGestureDetector();
+            mWeekView.setmGestureDetector(leftGestureDetector);
+        }
     }
 
     @Override
     public void onEmptyViewClicked(Calendar time) {
-        int startMinute = mWeekView.getmStartMinute();
-        Date startTime = new Date();
-        Date endTime = new Date();
-
-        Date date = time.getTime();
-        int hour = date.getHours();
-        int minute = date.getMinutes();
-
-        int minutes = hour * 60 + minute;
-        minutes += startMinute;
-        minute = minutes % 60;
-        int buffer = minute % 15;
-
-        long timeInMillis = date.getTime();
-        timeInMillis /= 1000;
-        timeInMillis = (timeInMillis / 60) - buffer + startMinute;
-        date.setTime(timeInMillis * 60 * 1000);
-
-        String output = "Start Time : " + date.getHours() + " : " + date.getMinutes();
-        startTime.setTime(timeInMillis * 60 * 1000);
-        timeInMillis = timeInMillis + 15;
-        date.setTime(timeInMillis * 60 * 1000);
-
-        output += "\nEnd Time : " + date.getHours() + " : " + date.getMinutes();
-        endTime.setTime(timeInMillis * 60 * 1000);
-
-
-        if (addEvent(startTime, endTime, "This is the New Event Test added :" + count)) {
-            Toast.makeText(MainActivity.this, output, Toast.LENGTH_SHORT).show();
+        startEndTime = convertTime(time);
+        // This tries to add event - Added by Muddassir
+        if (addEvent(startEndTime[0], startEndTime[1], "This is the New Event Test added :" + count)) {
+            Toast.makeText(MainActivity.this, "Successful", Toast.LENGTH_SHORT).show();
             count++;
         } else {
             Toast.makeText(MainActivity.this, "Failed to add event", Toast.LENGTH_SHORT).show();
         }
     }
 
-
+    // Extracts the event list of the specified month - Added by Muddassir
     private List<WeekViewEvent> extractEvent(int month) {
         List<WeekViewEvent> events = eventMap.get(month);
         if (events == null) {
@@ -331,6 +336,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         return events;
     }
 
+    // Fetch all the events from the database and store it into the Map - Added by Muddassir
     private void getEventFromDatabase() {
         List<WeekViewEvent> eventJan = new ArrayList<>();
         Calendar startTime = Calendar.getInstance();
@@ -429,6 +435,7 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         eventMap.put(MAY, eventMay);
     }
 
+    // Add event to the calendar - Added by Muddassir
     private boolean addEvent(Date startTime, Date endTime, String eventTitle) {
         Calendar currentDate = Calendar.getInstance();
         Date today = currentDate.getTime();
@@ -452,6 +459,126 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
     @Override
     public void changeBackground() {
+        viewType = DAY_VIEW;
         changeButtonBackground(buttonDayView);
+    }
+
+    @Override
+    public void onEmptyViewLongPress(Calendar time) {
+        startEndTime = convertTime(time);
+        if (viewType == DAY_VIEW) {
+            /** This stores the previous gesture detector component attached to WeekView
+             *  Added by Muddassir
+             */
+            gestureListener = new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return rightGestureDetector.onTouchEvent(event);
+                }
+            };
+            previousGesture = mWeekView.getmGestureDetector();
+            mWeekView.setmGestureDetector(rightGestureDetector);
+        }
+    }
+
+    // This will remove the event from calendar - Added by Muddassir
+    private boolean cancelEvent(WeekViewEvent event) {
+        final int month = event.getStartTime().getTime().getMonth();
+        List<WeekViewEvent> availableSlots = extractEvent(month + 1);
+        for (WeekViewEvent addedSot : availableSlots) {
+            if (event.getStartTime().getTime().getTime() == addedSot.getStartTime().getTime().getTime()) {
+                availableSlots.remove(addedSot);
+                eventMap.put(month + 1, availableSlots);
+                mWeekView.notifyDatasetChanged();
+                count--;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Convert the given Calendar touch time and compute its slot
+     * Added by Muddassir
+     *
+     * @param time
+     * @return Date[] of start and end time of the slot
+     */
+    private Date[] convertTime(Calendar time) {
+        int startMinute = mWeekView.getmStartMinute();
+        Date startTime = new Date();
+        Date endTime = new Date();
+
+        Date date = time.getTime();
+        int hour = date.getHours();
+        int minute = date.getMinutes();
+
+        int minutes = hour * 60 + minute;
+        minutes += startMinute;
+        minute = minutes % 60;
+        int buffer = minute % 15;
+
+        long timeInMillis = date.getTime();
+        timeInMillis /= 1000;
+        timeInMillis = (timeInMillis / 60) - buffer + startMinute;
+        date.setTime(timeInMillis * 60 * 1000);
+
+        startTime.setTime(timeInMillis * 60 * 1000);
+        timeInMillis = timeInMillis + 15;
+        date.setTime(timeInMillis * 60 * 1000);
+
+        endTime.setTime(timeInMillis * 60 * 1000);
+        Date[] startNend = new Date[2];
+        startNend[0] = startTime;
+        startNend[1] = endTime;
+        return startNend;
+    }
+
+    // It will implement the left swipe on the events to cancel it - Added by Muddassir
+    class MyLeftGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                    return false;
+                // right to left swipe
+                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE/* && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY*/) {
+                    cancelEvent(event);
+                }
+                mWeekView.setmGestureDetector(previousGesture);
+            } catch (Exception e) {
+                // nothing
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+    }
+
+    // It will implement the right swipe on the empty view to add blank - Added by Muddassir
+    class MyRightGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                    return false;
+                if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE/* && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY*/) {
+                    if (!addEvent(startEndTime[0], startEndTime[1], "")) {
+                        Toast.makeText(MainActivity.this, "Failed to add event", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                mWeekView.setmGestureDetector(previousGesture);
+            } catch (Exception e) {
+                // nothing
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
     }
 }

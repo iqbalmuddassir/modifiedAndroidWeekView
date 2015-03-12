@@ -69,6 +69,7 @@ public class WeekView extends View {
     private float mHeaderTextHeight;
     private GestureDetectorCompat mGestureDetector;
     private OverScroller mScroller;
+    private Scroller mStickyScroller;
     private PointF mCurrentOrigin = new PointF(0f, 0f);
     private Direction mCurrentScrollDirection = Direction.NONE;
     private Paint mHeaderBackgroundPaint;
@@ -85,7 +86,6 @@ public class WeekView extends View {
     private RectF monthRect;
     private TextPaint mEventTextPaint;
     private Paint mHeaderColumnBackgroundPaint;
-    private Scroller mStickyScroller;
     private int mFetchedMonths[] = new int[3];
     private boolean mRefreshEvents = false;
     private float mDistanceY = 0;
@@ -114,14 +114,13 @@ public class WeekView extends View {
     private boolean mIsFirstDraw = true;
     private int mOverlappingEventGap = 0;
     private int mEventMarginVertical = 0;
-    private float mXScrollingSpeed = 1f;
+    private float mXScrollingSpeed = 0.5f; // changed
     private Calendar mFirstVisibleDay;
     private Calendar mLastVisibleDay;
-
     // To make dates clickable - Added by Lakshmi
     private List<RectF> rectList = new ArrayList<>();
     private Map<RectF, Calendar> rectanglesWithDate = new HashMap<>();
-
+    private RectF headerRect;
     // Listeners.
     private EventClickListener mEventClickListener;
     private EventLongPressListener mEventLongPressListener;
@@ -161,12 +160,17 @@ public class WeekView extends View {
 
             quarterCount = ((mEndMinute - mStartMinute) / 15);
             if (mCurrentFlingDirection == Direction.HORIZONTAL) {
-                mScroller.fling((int) mCurrentOrigin.x, 0, (int) (velocityX * mXScrollingSpeed), 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0);
+                mScroller.fling((int) mCurrentOrigin.x, 0,
+                        (int) (velocityX * mXScrollingSpeed), 0,
+                        Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0);
                 rectanglesWithDate.clear();
                 rectList.clear();
             } else if (mCurrentFlingDirection == Direction.VERTICAL) {
                 //mScroller.fling(0, (int) mCurrentOrigin.y, 0, (int) velocityY, 0, 0, (int) -(mHourHeight * 24 + mHeaderTextHeight + mHeaderRowPadding * 2 - getHeight()), 0);
-                mScroller.fling(0, (int) mCurrentOrigin.y, 0, (int) velocityY, 0, 0, (int) -(mHourHeight * quarterCount + mHeaderTextHeight + mHeaderRowPadding * 68 / 15 - getHeight()), 0); // Edited by Muddassir
+                mScroller.fling(0, (int) mCurrentOrigin.y, 0,
+                        (int) velocityY, 0, 0,
+                        (int) -(mHourHeight * quarterCount + mHeaderTextHeight +
+                                mHeaderRowPadding * 68 / 15 - getHeight()), 0); // Edited by Muddassir
             }
 
             ViewCompat.postInvalidateOnAnimation(WeekView.this);
@@ -233,9 +237,11 @@ public class WeekView extends View {
     public WeekView(Context context) {
         this(context, null);
     }
+
     public WeekView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
+
 
     public WeekView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -274,6 +280,22 @@ public class WeekView extends View {
         }
 
         init();
+    }
+
+    public GestureDetectorCompat getmGestureDetector() {
+        return mGestureDetector;
+    }
+
+    public void setmGestureDetector(GestureDetectorCompat mGestureDetector) {
+        this.mGestureDetector = mGestureDetector;
+    }
+
+    public void setmScroller(OverScroller mScroller) {
+        this.mScroller = mScroller;
+    }
+
+    public void setmStickyScroller(Scroller mStickyScroller) {
+        this.mStickyScroller = mStickyScroller;
     }
 
     public ChangeBackgroundListener getmBackgroundListener() {
@@ -586,7 +608,8 @@ public class WeekView extends View {
         }
 
         // Draw the header background.
-        canvas.drawRect(0, 0, getWidth(), mHeaderTextHeight + mHeaderRowPadding * 68 / 15, mHeaderBackgroundPaint); // Edited by Muddassir to be changed back to 68 /15
+        headerRect = new RectF(0, 0, getWidth(), mHeaderTextHeight + mHeaderRowPadding * 68 / 15);
+        canvas.drawRect(headerRect, mHeaderBackgroundPaint); // Edited by Muddassir to be changed back to 68 /15
 
         // Draw the header row texts.
         startPixel = startFromPixel;
@@ -632,7 +655,10 @@ public class WeekView extends View {
                 mPaint.setAlpha(0); // Full transparent
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setAntiAlias(true);
-                RectF bounds = new RectF(startPixel, mHeaderTextHeight, startPixel + mWidthPerDay, mHeaderTextHeight * 6 + mHeaderRowPadding);
+                RectF bounds = new RectF(startPixel,
+                        mHeaderTextHeight/* * 4*/,
+                        startPixel + mWidthPerDay,
+                        mHeaderTextHeight * 6 + mHeaderRowPadding);
 
                 // Draw circle to distinguish today - Added by Muddassir
                 Paint circlePaint = new Paint();
@@ -692,7 +718,7 @@ public class WeekView extends View {
      * @param y The y position of the touch event.
      * @return The time and date at the clicked position.
      */
-    private Calendar getTimeFromPoint(float x, float y) {
+    public Calendar getTimeFromPoint(float x, float y) {
         int leftDaysWithGaps = (int) -(Math.ceil(mCurrentOrigin.x / (mWidthPerDay + mColumnGap)));
         float startPixel = mCurrentOrigin.x + (mWidthPerDay + mColumnGap) * leftDaysWithGaps +
                 mHeaderColumnWidth;
@@ -1571,28 +1597,30 @@ public class WeekView extends View {
         super.computeScroll();
         rectanglesWithDate.clear();
         rectList.clear();
-        if (mScroller.computeScrollOffset()) {
-            if (Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) < mWidthPerDay + mColumnGap && Math.abs(mScroller.getFinalX() - mScroller.getStartX()) != 0) {
-                mScroller.forceFinished(true);
-                float leftDays = Math.round(mCurrentOrigin.x / (mWidthPerDay + mColumnGap));
-                if (mScroller.getFinalX() < mScroller.getCurrX())
-                    leftDays--;
-                else
-                    leftDays++;
-                int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
-                mStickyScroller.startScroll((int) mCurrentOrigin.x, 0, -nearestOrigin, 0);
+        if (mNumberOfVisibleDays == 1 || mNumberOfVisibleDays == 7) {
+            if (mScroller.computeScrollOffset()) {
+                if (Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) < mWidthPerDay + mColumnGap && Math.abs(mScroller.getFinalX() - mScroller.getStartX()) != 0) {
+                    mScroller.forceFinished(true);
+                    float leftDays = Math.round(mCurrentOrigin.x / (mWidthPerDay + mColumnGap));
+                    if (mScroller.getFinalX() < mScroller.getCurrX())
+                        leftDays--;
+                    else
+                        leftDays++;
+                    int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
+                    mStickyScroller.startScroll((int) mCurrentOrigin.x, 0, -nearestOrigin, 0);
 
-                ViewCompat.postInvalidateOnAnimation(WeekView.this);
-            } else {
-                if (mCurrentFlingDirection == Direction.VERTICAL)
-                    mCurrentOrigin.y = mScroller.getCurrY();
-                else mCurrentOrigin.x = mScroller.getCurrX();
+                    ViewCompat.postInvalidateOnAnimation(WeekView.this);
+                } else {
+                    if (mCurrentFlingDirection == Direction.VERTICAL)
+                        mCurrentOrigin.y = mScroller.getCurrY();
+                    else mCurrentOrigin.x = mScroller.getCurrX();
+                    ViewCompat.postInvalidateOnAnimation(this);
+                }
+            }
+            if (mStickyScroller.computeScrollOffset()) {
+                mCurrentOrigin.x = mStickyScroller.getCurrX();
                 ViewCompat.postInvalidateOnAnimation(this);
             }
-        }
-        if (mStickyScroller.computeScrollOffset()) {
-            mCurrentOrigin.x = mStickyScroller.getCurrX();
-            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
     /////////////////////////////////////////////////////////////////
