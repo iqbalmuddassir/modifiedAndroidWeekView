@@ -18,6 +18,7 @@
     <!-- For Background and text color -->
     <color name="caldroid_background_color">#E0144E</color>
     <color name="blank_space">#EBECEC</color>
+    <color name="month_text_color">#ff868384</color>
     <!--<color name="text_color">#353F49</color>-->
 
 </resources>

@@ -1,6 +1,8 @@
 package com.alamkanak.weekview.sample;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -50,29 +52,28 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-
+    // For Shared Preferences
+    private static final String CALENDAR_PREFERENCES = "Calendar date";
+    private static final String DATE_KEY_WEEK = "Week View";
+    private static final String DATE_KEY_MONTH = "Month View";
     // This is the counter for event count - can be removed after testing
     private static int count = 1;
-
     // To keep record of viewType being shown - Added by Muddassir
     private static int viewType;
     // This map is used to store the events
     HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
     // Typeface for text - Added by Muddassir
-    Typeface ralewayLight, ralewayRegular;
+    Typeface ralewayLight, ralewayRegular, ralewaySemiBold;
     TextView monthText, headerTitle, stylistOptionTitle;
-    private View.OnTouchListener gestureListener;
+    // For gesture listener - Added by Muddassir
     private GestureDetectorCompat leftGestureDetector, rightGestureDetector, previousGesture;
-
+    private View.OnTouchListener gestureListener;
     // Day view & Week view object
     private WeekView mWeekView;
-
     // Month view fragment object
     private CustomMonthCalendar customMonthCalendar;
-
     // For button background toggle
     private Button buttonDayView, buttonWeekView, buttonMonthView;
-
     // Month view listener
     final CaldroidListener listener = new CaldroidListener() {
 
@@ -85,6 +86,10 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
             FragmentTransaction t = getSupportFragmentManager().beginTransaction();
             t.remove(customMonthCalendar);
             t.commit();
+
+            SharedPreferences.Editor editor = calendarPreference.edit();
+            editor.putLong(DATE_KEY_MONTH, date.getTime());
+            editor.commit();
 
             // this is opening the day view of the selected date
             Calendar requiredDate = Calendar.getInstance();
@@ -113,17 +118,17 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         public void onCaldroidViewCreated() {
             if (customMonthCalendar.getLeftArrowButton() != null) {
                 monthText = customMonthCalendar.getMonthTitleTextView();
-                monthText.setTypeface(ralewayRegular); // Added by Muddassir
+                monthText.setTypeface(ralewaySemiBold); // Added by Muddassir
             }
         }
 
     };
-
     // Variables to be used in the program - Added by Muddassir
     private FragmentManager manager = null;
     private SimpleDateFormat formatter;
     private Date[] startEndTime;
     private WeekViewEvent event;
+    private SharedPreferences calendarPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +148,8 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
                 "fonts/RalewayLight.ttf"); // Added by Muddassir
         ralewayRegular = Typeface.createFromAsset(getAssets(),
                 "fonts/RalewayRegular.ttf"); // Added by Muddassir
+        ralewaySemiBold = Typeface.createFromAsset(getAssets(),
+                "fonts/RalewaySemiBold.ttf"); // Added by Muddassir
 
         // To record the button pressed - Added by Muddassir
         headerTitle = (TextView) findViewById(R.id.header_title);
@@ -195,70 +202,97 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
         // Gesture detection for right swipe
         rightGestureDetector = new GestureDetectorCompat(this, new MyRightGestureDetector());
+
+        // Initialise the shared preference
+        calendarPreference = getSharedPreferences
+                (CALENDAR_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public void onClick(View view) {
 
-        mWeekView.goToToday();
+        //mWeekView.goToToday();
         switch (view.getId()) {
             // When Day view is clicked
             case R.id.action_day_view:
-                getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
-                mWeekView.setVisibility(View.VISIBLE);
+                if (viewType != DAY_VIEW) {
+                    getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
+                    mWeekView.setVisibility(View.VISIBLE);
 
-                // Lets change some dimensions to best fit the view.
-                mWeekView.setTextSize((int) TypedValue.applyDimension
-                        (TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-                mWeekView.setEventTextSize((int) TypedValue.applyDimension
-                        (TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
+                    // Lets change some dimensions to best fit the view.
+                    mWeekView.setTextSize((int) TypedValue.applyDimension
+                            (TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                    mWeekView.setEventTextSize((int) TypedValue.applyDimension
+                            (TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
 
-                // Set the number of visible days to one
-                mWeekView.setNumberOfVisibleDays(1);
-                viewType = DAY_VIEW;
+                    // Set the number of visible days to one
+                    mWeekView.setNumberOfVisibleDays(1);
+                    viewType = DAY_VIEW;
 
-                // Change the button colors - Added by Muddassir
-                changeButtonBackground(buttonDayView);
+                    // Change the button colors - Added by Muddassir
+                    changeButtonBackground(buttonDayView);
+                    mWeekView.setFromMonthView(false);
+                }
                 break;
 
             // When Week view is clicked
             case R.id.action_week_view:
-                getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
-                mWeekView.setVisibility(View.VISIBLE);
-                mWeekView.setEventTextSize((int) TypedValue.applyDimension
-                        (TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
+                if (viewType != WEEK_VIEW) {
+                    getSupportFragmentManager().beginTransaction().remove(customMonthCalendar).commitAllowingStateLoss();
+                    mWeekView.setVisibility(View.VISIBLE);
+                    mWeekView.setEventTextSize((int) TypedValue.applyDimension
+                            (TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
 
-                // Set the number of visible days to seven
-                mWeekView.setNumberOfVisibleDays(7);
-                viewType = WEEK_VIEW;
-                changeButtonBackground(buttonWeekView);
+                    // Set the number of visible days to seven
+                    mWeekView.setNumberOfVisibleDays(7);
+                    viewType = WEEK_VIEW;
+                    changeButtonBackground(buttonWeekView);
+
+                    if (calendarPreference.contains(DATE_KEY_WEEK)) {
+                        long dateInMillis = calendarPreference.getLong(DATE_KEY_WEEK, 0);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(dateInMillis);
+                        mWeekView.goToDate(calendar);
+                        mWeekView.notifyDatasetChanged();
+                    }
+                    mWeekView.setFromMonthView(false);
+                }
                 break;
 
             // When Month view is clicked
             case R.id.action_month_view:
-                viewType = MONTH_VIEW;
-                mWeekView.setVisibility(View.GONE);
+                if (viewType != MONTH_VIEW) {
+                    if (viewType == WEEK_VIEW) {
+                        mWeekView.setFromMonthView(true);
+                    }
+                    viewType = MONTH_VIEW;
+                    mWeekView.setVisibility(View.GONE);
+                    manager = null;
+                    // open the month view calendar
+                    if (manager == null) {
+                        Bundle args = new Bundle();
+                        Calendar cal = Calendar.getInstance();
+                        // Extract Date from the Shared Preferences if already stored
+                        if (calendarPreference.contains(DATE_KEY_MONTH)) {
+                            long dateInMillis = calendarPreference.getLong(DATE_KEY_MONTH, 0);
+                            cal.setTimeInMillis(dateInMillis);
+                            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+                            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+                        } else {
+                            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+                            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+                        }
+                        args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
+                        args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
 
-                // open the month view calendar
-                if (manager == null) {
-                    Bundle args = new Bundle();
-                    Calendar cal = Calendar.getInstance();
-                    args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-                    args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-                    args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-                    args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
+                        customMonthCalendar.setArguments(args);
+                    }
+                    manager = getSupportFragmentManager();
+                    manager.beginTransaction()
+                            .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
 
-                    //Uncomment this to customize startDayOfWeek
-                /*args.putInt(CaldroidFragment.START_DAY_OF_WEEK,
-                CaldroidFragment.TUESDAY);*/
-
-                    customMonthCalendar.setArguments(args);
+                    customMonthCalendar.refreshView();
+                    changeButtonBackground(buttonMonthView);
                 }
-                manager = getSupportFragmentManager();
-                manager.beginTransaction()
-                        .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
-                customMonthCalendar.refreshView();
-                viewType = WEEK_VIEW;
-                changeButtonBackground(buttonMonthView);
                 break;
 
             case R.id.back_button:
@@ -483,11 +517,11 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     // This will remove the event from calendar - Added by Muddassir
     private boolean cancelEvent(WeekViewEvent event) {
         final int month = event.getStartTime().getTime().getMonth();
-        List<WeekViewEvent> availableSlots = extractEvent(month + 1);
-        for (WeekViewEvent addedSot : availableSlots) {
-            if (event.getStartTime().getTime().getTime() == addedSot.getStartTime().getTime().getTime()) {
-                availableSlots.remove(addedSot);
-                eventMap.put(month + 1, availableSlots);
+        List<WeekViewEvent> eventList = extractEvent(month + 1);
+        for (WeekViewEvent viewEvent : eventList) {
+            if (event.getStartTime().getTime().getTime() == viewEvent.getStartTime().getTime().getTime()) {
+                eventList.remove(viewEvent);
+                eventMap.put(month + 1, eventList);
                 mWeekView.notifyDatasetChanged();
                 count--;
                 return true;
@@ -531,6 +565,12 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
         startNend[0] = startTime;
         startNend[1] = endTime;
         return startNend;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        calendarPreference.edit().clear().commit();
     }
 
     // It will implement the left swipe on the events to cancel it - Added by Muddassir

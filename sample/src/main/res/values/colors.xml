@@ -10,7 +10,7 @@
     <color name="button_not_selected">#353F49</color>
     <color name="blank_space">#EBECEC</color>
     <color name="header_text_color">#353F49</color>
-    <color name="cell_separator">#EBECEF</color>
+    <color name="cell_separator">#DDDEDE</color>
     <color name="green">#009900</color>
     <color name="red">#BB0000</color>
 </resources>

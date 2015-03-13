@@ -1,6 +1,7 @@
 package com.alamkanak.weekview;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -51,12 +52,14 @@ public class WeekView extends View {
     @Deprecated
     private int mDayNameLength = LENGTH_LONG;
 
-    private static final String TODAY_COLOR = "#bb1a35";
-
+    // For Shared Preferences
+    private static final String CALENDAR_PREFERENCES = "Calendar date";
+    private static final String DATE_KEY_WEEK = "Week View";
     private final Context mContext;
     // Typeface for text - Added by Muddassir
     Typeface textTypeface;
     String textTypefaceName;
+    private SharedPreferences calendarPreference;
     private Calendar mToday;
     private Calendar mStartDate;
     private int mStartMinute;
@@ -66,6 +69,7 @@ public class WeekView extends View {
     private float mTimeTextWidth;
     private float mTimeTextHeight;
     private Paint mHeaderTextPaint;
+    private Paint mHeaderRowTextPaint; // Added by Muddassir
     private float mHeaderTextHeight;
     private GestureDetectorCompat mGestureDetector;
     private OverScroller mScroller;
@@ -100,17 +104,18 @@ public class WeekView extends View {
     private int mHeaderColumnTextColor = Color.BLACK;
     private int mNumberOfVisibleDays = 1;
     private int mHeaderRowPadding = 15;
+    private int mHeaderRowTextColor = Color.rgb(134, 131, 132); // Added by Muddassir
     private int mHeaderRowBackgroundColor = Color.rgb(224, 20, 79); // Edited by Muddassir
     private int mDayBackgroundColor = Color.rgb(235, 236, 236); // Color.rgb(245, 245, 245); // Change by Muddassir
-    private int mHourSeparatorColor = Color.WHITE; //Color.rgb(230, 230, 230); // Edited by Muddassir
+    private int mHourSeparatorColor = Color.WHITE;/*Color.rgb(221, 222, 222);*/ // Edited by Muddassir
     private int mTodayBackgroundColor = Color.rgb(235, 236, 236);  //Color.rgb(239, 247, 254); // Changed by Muddassir
     private int mHourSeparatorHeight = 2;
-    private int mTodayHeaderTextColor = Color.WHITE; //Color.rgb(39, 137, 228); // Edited - Muddassir
+    private int mTodayHeaderTextColor = Color.rgb(224, 20, 79); // Edited - Muddassir
     private int mEventTextSize = 12;
     private int mEventTextColor = Color.BLACK;
     private int mEventPadding = 8;
     private int mHeaderColumnBackgroundColor = Color.WHITE;
-    private int mDefaultEventColor;
+    private int mDefaultEventColor = Color.rgb(174, 208, 238); // Changed by Muddassir
     private boolean mIsFirstDraw = true;
     private int mOverlappingEventGap = 0;
     private int mEventMarginVertical = 0;
@@ -121,6 +126,7 @@ public class WeekView extends View {
     private List<RectF> rectList = new ArrayList<>();
     private Map<RectF, Calendar> rectanglesWithDate = new HashMap<>();
     private RectF headerRect;
+    private boolean fromMonthView = false;
     // Listeners.
     private EventClickListener mEventClickListener;
     private EventLongPressListener mEventLongPressListener;
@@ -242,7 +248,6 @@ public class WeekView extends View {
         this(context, attrs, 0);
     }
 
-
     public WeekView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
@@ -280,6 +285,10 @@ public class WeekView extends View {
         }
 
         init();
+    }
+
+    public void setFromMonthView(boolean fromMonthView) {
+        this.fromMonthView = fromMonthView;
     }
 
     public GestureDetectorCompat getmGestureDetector() {
@@ -378,6 +387,14 @@ public class WeekView extends View {
         mHeaderTextHeight = rect.height();
         mHeaderTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
+        // Measure settings for header row text.- Added By Muddassir
+        mHeaderRowTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mHeaderRowTextPaint.setColor(mHeaderRowTextColor);
+        mHeaderRowTextPaint.setTextAlign(Paint.Align.CENTER);
+        mHeaderRowTextPaint.setTextSize(mTextSize);
+        mHeaderRowTextPaint.getTextBounds("00 PM", 0, "00 PM".length(), rect);
+        mHeaderRowTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+
         // Prepare header background paint.
         mHeaderBackgroundPaint = new Paint();
         mHeaderBackgroundPaint.setColor(/*Color.WHITE*/mHeaderRowBackgroundColor);
@@ -405,7 +422,7 @@ public class WeekView extends View {
 
         // Prepare event background color.
         mEventBackgroundPaint = new Paint();
-        mEventBackgroundPaint.setColor(Color.rgb(174, 208, 238));
+        mEventBackgroundPaint.setColor(mDefaultEventColor);
 
         // Prepare header column background color.
         mHeaderColumnBackgroundPaint = new Paint();
@@ -426,6 +443,11 @@ public class WeekView extends View {
             textTypeface = Typeface.createFromAsset(getContext().getAssets(), textTypefaceName);
             setCustomTextTypeface(textTypeface);
         }
+
+        // Initialise Shared Preferences
+
+        calendarPreference = mContext.getSharedPreferences
+                (CALENDAR_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     // Set the typeface of all the texts - Added by Muddassir
@@ -436,6 +458,8 @@ public class WeekView extends View {
         mTodayHeaderTextPaint.setTypeface(textTypeface);
         mHeaderTextPaint.setTypeface(textTypeface);
         mHeaderTextPaint.setFakeBoldText(true);
+        mHeaderRowTextPaint.setTypeface(textTypeface);
+        mHeaderRowTextPaint.setFakeBoldText(true);
 
     }
 
@@ -457,8 +481,8 @@ public class WeekView extends View {
         // Edited by Lakshmi
         if (dayDate != null) {
             mHeaderTextPaint.setColor(Color.WHITE);
-            canvas.drawText(dayDate[0], mHeaderColumnPadding * 8, mHeaderRowPadding * 3.5f, mHeaderTextPaint);
-            canvas.drawText(dayDate[1], mHeaderColumnPadding * 8, mHeaderRowPadding * 2.5f, mHeaderTextPaint);
+            canvas.drawText(dayDate[0], mHeaderColumnPadding * 8, mHeaderRowPadding * 3.5f, mHeaderRowTextPaint);
+            canvas.drawText(dayDate[1], mHeaderColumnPadding * 8, mHeaderRowPadding * 2.5f, mHeaderRowTextPaint);
         }
         // Hide anything that is in the bottom margin of the header row.
         //canvas.drawRect(mHeaderColumnWidth, mHeaderTextHeight * 2 + mHeaderRowPadding * 68 / 15, getWidth(), mHeaderRowPadding * 68 / 15 + mHeaderTextHeight + mHeaderMarginBottom + mTimeTextHeight / 2 - mHourSeparatorHeight / 2, mHeaderColumnBackgroundPaint);// Changed
@@ -635,8 +659,8 @@ public class WeekView extends View {
                         mHeaderTextHeight * 2f + mHeaderRowPadding, mHeaderTextPaint);*/
                 String[] dateAndDay = dayLabel.split(",");
                 Paint newPaint = new Paint();
-                newPaint.setTypeface(mHeaderTextPaint.getTypeface());
-                newPaint.setColor(Color.WHITE);
+                newPaint.setTypeface(mHeaderRowTextPaint.getTypeface());
+                newPaint.setColor(mHeaderRowTextColor); // Edited by Muddassir
                 newPaint.setTextSize(mTextSize * 1.5f);
                 canvas.drawText(dateAndDay[1].toUpperCase().substring(0, 3) + " "
                                 + dateAndDay[2], startPixel + mWidthPerDay / 2.6f,
@@ -681,7 +705,7 @@ public class WeekView extends View {
 
                 // Added by Muddassir
                 Paint newPaint = new Paint();
-                newPaint.setColor(Color.WHITE);
+                newPaint.setColor(mHeaderRowTextColor);
                 newPaint.setTypeface(mHeaderTextPaint.getTypeface());
                 newPaint.setFakeBoldText(mHeaderTextPaint.isFakeBoldText());
                 newPaint.setTextAlign(mHeaderTextPaint.getTextAlign());
@@ -699,9 +723,9 @@ public class WeekView extends View {
                 canvas.drawText(dayDate[2], startPixel + mWidthPerDay / 2,
                         mHeaderTextHeight * 2 + mHeaderRowPadding, newPaint);
                 if (sameDay) {
-                    newPaint.setColor(Color.argb(255, 224, 20, 79));
+                    newPaint.setColor(mTodayHeaderTextColor);
                 } else {
-                    newPaint.setColor(Color.WHITE);
+                    newPaint.setColor(mHeaderRowTextColor);
                 }
                 canvas.drawText(dayDate[3], startPixel + mWidthPerDay / 2,
                         mHeaderTextHeight * 4.5f + mHeaderRowPadding, newPaint);
@@ -1567,7 +1591,13 @@ public class WeekView extends View {
             for (RectF rectF : rectList) {
                 if (rectF.contains(event.getX(), event.getY())) {
                     setNumberOfVisibleDays(1);
-                    goToDate(rectanglesWithDate.get(rectF));
+                    Calendar date = rectanglesWithDate.get(rectF);
+                    // Store date in the shared preference
+                    SharedPreferences.Editor editor = calendarPreference.edit();
+                    editor.putLong(DATE_KEY_WEEK, date.getTimeInMillis());
+                    editor.commit();
+                    goToDate(date);
+
                     rectanglesWithDate.clear();
                     rectList.clear();
                     notifyDatasetChanged();
@@ -1602,10 +1632,21 @@ public class WeekView extends View {
                 if (Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) < mWidthPerDay + mColumnGap && Math.abs(mScroller.getFinalX() - mScroller.getStartX()) != 0) {
                     mScroller.forceFinished(true);
                     float leftDays = Math.round(mCurrentOrigin.x / (mWidthPerDay + mColumnGap));
-                    if (mScroller.getFinalX() < mScroller.getCurrX())
-                        leftDays--;
-                    else
-                        leftDays++;
+
+                    // To scroll number of days according to visible days - Edited by Muddassir
+                    if (mScroller.getFinalX() < mScroller.getCurrX()) {
+                        if (mNumberOfVisibleDays == 1) {
+                            leftDays--;
+                        } else {
+                            leftDays -= (mNumberOfVisibleDays - 1); // Added by Muddassir
+                        }
+                    } else {
+                        if (mNumberOfVisibleDays == 1) {
+                            leftDays++;
+                        } else {
+                            leftDays += (mNumberOfVisibleDays - 1); // Added by Muddassir
+                        }
+                    }
                     int nearestOrigin = (int) (mCurrentOrigin.x - leftDays * (mWidthPerDay + mColumnGap));
                     mStickyScroller.startScroll((int) mCurrentOrigin.x, 0, -nearestOrigin, 0);
 
@@ -1659,8 +1700,14 @@ public class WeekView extends View {
 
         int dateDifference = (int) ((date.getTimeInMillis() - today.getTimeInMillis()) / (1000 * 60 * 60 * 24));
 //        mCurrentOrigin.x = -dateDifference * (mWidthPerDay + mColumnGap);
-        mCurrentOrigin.x = -dateDifference * (mWidthPerDayOriginal + mColumnGap);
-
+        if (mNumberOfVisibleDays == 7 && !fromMonthView) {
+            mCurrentOrigin.x = -dateDifference * (mWidthPerDay + mColumnGap) / 7;
+        } else if (mNumberOfVisibleDays == 1 && fromMonthView) {
+            mCurrentOrigin.x = -dateDifference * (mWidthPerDayOriginal + mColumnGap);
+            fromMonthView = false;
+        } else {
+            mCurrentOrigin.x = -dateDifference * (mWidthPerDayOriginal + mColumnGap);
+        }
         invalidate();
     }
 

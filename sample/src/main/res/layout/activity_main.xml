@@ -124,12 +124,12 @@
         app:headerColumnBackground="@color/caldroid_white"
         app:headerColumnPadding="5dp"
         app:headerColumnTextColor="@color/header_text_color"
-        app:headerRowBackgroundColor="@color/button_selected"
+        app:headerRowBackgroundColor="@color/blank_space"
         app:headerRowPadding="15dp"
         app:noOfVisibleDays="1"
-        app:textSize="12sp"
+        app:textSize="13sp"
         android:layout_above="@id/menu_bar"
-        app:todayHeaderTextColor="@color/caldroid_white" />
+        app:todayHeaderTextColor="@color/button_selected" />
 
     <LinearLayout
         android:id="@+id/calendar_layout"
