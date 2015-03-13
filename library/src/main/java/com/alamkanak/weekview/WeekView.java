@@ -1705,6 +1705,8 @@ public class WeekView extends View {
         } else if (mNumberOfVisibleDays == 1 && fromMonthView) {
             mCurrentOrigin.x = -dateDifference * (mWidthPerDayOriginal + mColumnGap);
             fromMonthView = false;
+        } else if (mNumberOfVisibleDays == 7 && fromMonthView) {
+            mCurrentOrigin.x = -dateDifference * (mWidthPerDay + mColumnGap);
         } else {
             mCurrentOrigin.x = -dateDifference * (mWidthPerDayOriginal + mColumnGap);
         }

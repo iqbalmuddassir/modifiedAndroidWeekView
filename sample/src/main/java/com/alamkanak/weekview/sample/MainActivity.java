@@ -329,7 +329,21 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
 
     @Override
     public void onEventClick(WeekViewEvent event, RectF eventRect) {
-        Toast.makeText(MainActivity.this, "Pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+        this.event = event;
+        if (viewType == DAY_VIEW) {
+            /** This stores the previous gesture detector component attached to WeekView
+             *  Added by Muddassir
+             */
+            gestureListener = new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return leftGestureDetector.onTouchEvent(event);
+                }
+            };
+            previousGesture = mWeekView.getmGestureDetector();
+            mWeekView.setmGestureDetector(leftGestureDetector);
+        } else {
+            Toast.makeText(MainActivity.this, "Pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -352,12 +366,25 @@ public class MainActivity extends FragmentActivity implements WeekView.MonthChan
     @Override
     public void onEmptyViewClicked(Calendar time) {
         startEndTime = convertTime(time);
-        // This tries to add event - Added by Muddassir
-        if (addEvent(startEndTime[0], startEndTime[1], "This is the New Event Test added :" + count)) {
-            Toast.makeText(MainActivity.this, "Successful", Toast.LENGTH_SHORT).show();
-            count++;
+        if (viewType == DAY_VIEW) {
+            /** This stores the previous gesture detector component attached to WeekView
+             *  Added by Muddassir
+             */
+            gestureListener = new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return rightGestureDetector.onTouchEvent(event);
+                }
+            };
+            previousGesture = mWeekView.getmGestureDetector();
+            mWeekView.setmGestureDetector(rightGestureDetector);
         } else {
-            Toast.makeText(MainActivity.this, "Failed to add event", Toast.LENGTH_SHORT).show();
+            // This tries to add event - Added by Muddassir
+            if (addEvent(startEndTime[0], startEndTime[1], "This is the New Event Test added :" + count)) {
+                Toast.makeText(MainActivity.this, "Successful", Toast.LENGTH_SHORT).show();
+                count++;
+            } else {
+                Toast.makeText(MainActivity.this, "Failed to add event", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
