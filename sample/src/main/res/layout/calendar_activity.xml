@@ -1,74 +1,49 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/root"
     android:background="#fff"
     tools:context=".MyActivity">
 
     <RelativeLayout
-        android:id="@+id/title_bar"
-        android:layout_width="match_parent"
-        android:layout_height="71dp"
-        android:background="@color/button_selected"
-        android:layout_alignParentTop="true">
-
-        <ImageButton
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="23dp"
-            android:layout_centerVertical="true"
-            android:onClick="onClick"
-            android:background="@color/caldroid_transparent"
-            android:src="@drawable/back"/>
-        <TextView
-            android:id="@+id/header_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/caldroid_white"
-            android:textSize="19sp"
-            android:layout_centerInParent="true"
-            android:text="Select Slot"/>
-        </RelativeLayout>
-    <RelativeLayout
         android:id="@+id/stylist_option"
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:layout_below="@id/title_bar"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
         android:background="@color/caldroid_white">
 
         <ImageButton
             android:id="@+id/show_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="23dp"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:onClick="onClick"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="23dp"
             android:background="@color/caldroid_transparent"
-            android:src="@drawable/more"/>
+            android:onClick="onClick"
+            android:src="@drawable/more" />
+
         <TextView
             android:id="@+id/stylist_option_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginLeft="23dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="23dp"
+            android:gravity="center"
+            android:text="Select Stylist"
             android:textColor="@color/button_not_selected"
-            android:textSize="13sp"
-            android:text="Select Stylist"/>
+            android:textSize="13sp" />
 
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
+        android:layout_height="45dp"
         android:layout_below="@id/stylist_option"
+        android:orientation="horizontal"
         android:weightSum="3">
 
         <Button
@@ -76,38 +51,38 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="15sp"
-            android:textColor="@color/caldroid_white"
             android:background="@color/button_selected"
             android:onClick="onClick"
-            android:text="@string/action_day_view" />
+            android:text="@string/action_day_view"
+            android:textColor="@color/caldroid_white"
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/action_week_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="15sp"
-            android:textColor="@color/caldroid_white"
             android:background="@color/button_not_selected"
             android:onClick="onClick"
-            android:text="@string/action_week_view" />
+            android:text="@string/action_week_view"
+            android:textColor="@color/caldroid_white"
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/action_month_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textSize="15sp"
-            android:textColor="@color/caldroid_white"
             android:background="@color/button_not_selected"
             android:onClick="onClick"
-            android:text="@string/action_month_view" />
+            android:text="@string/action_month_view"
+            android:textColor="@color/caldroid_white"
+            android:textSize="15sp" />
     </LinearLayout>
 
     <fragment
-        class="com.alamkanak.weekview.fragment.BottomNavigationFragment"
         android:id="@+id/menu_bar"
+        class="com.alamkanak.weekview.fragment.BottomNavigationFragment"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
@@ -117,8 +92,8 @@
         android:id="@+id/weekView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/menu_bar"
         android:layout_below="@id/button_container"
-        app:typeface="fonts/RalewayMedium.ttf"
         app:columnGap="1dp"
         app:eventTextColor="@android:color/white"
         app:headerColumnBackground="@color/caldroid_white"
@@ -126,17 +101,18 @@
         app:headerColumnTextColor="@color/header_text_color"
         app:headerRowBackgroundColor="@color/blank_space"
         app:headerRowPadding="15dp"
+        app:headerRowTextColor="@color/header_row_text_color"
         app:noOfVisibleDays="1"
         app:textSize="13sp"
-        android:layout_above="@id/menu_bar"
-        app:todayHeaderTextColor="@color/button_selected" />
+        app:todayHeaderTextColor="@color/button_selected"
+        app:typeface="fonts/RalewayMedium.ttf" />
 
     <LinearLayout
         android:id="@+id/calendar_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/button_container"
         android:layout_above="@id/menu_bar"
+        android:layout_below="@id/button_container"
         android:orientation="vertical"></LinearLayout>
 
 </RelativeLayout>

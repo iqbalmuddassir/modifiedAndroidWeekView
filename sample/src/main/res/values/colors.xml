@@ -10,7 +10,16 @@
     <color name="button_not_selected">#353F49</color>
     <color name="blank_space">#EBECEC</color>
     <color name="header_text_color">#353F49</color>
+    <color name="header_row_text_color">#ff878384</color>
     <color name="cell_separator">#DDDEDE</color>
     <color name="green">#009900</color>
     <color name="red">#BB0000</color>
+
+    <color name="label_color">#323031</color>
+    <color name="color_primary_light">#E31458</color>
+    <color name="white">#ffffff</color>
+    <color name="edittext_color">#D3D3D3</color>
+    <color name="label_color_light">#BCBCBC</color>
+    <color name="darkPink">#950C2A</color>
+    <color name="border_color">#979797</color>
 </resources>

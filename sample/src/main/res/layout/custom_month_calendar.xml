@@ -1,14 +1,13 @@
-
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/calendar_gridview"
-        android:background="@color/cell_separator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:gravity="center_horizontal"
-        android:horizontalSpacing="1dp"
-        android:numColumns="7"
-        android:padding="1dp"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="1dp" />
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/calendar_gridview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:adjustViewBounds="true"
+    android:background="@color/cell_separator"
+    android:gravity="center_horizontal"
+    android:horizontalSpacing="1dp"
+    android:numColumns="7"
+    android:padding="1dp"
+    android:stretchMode="columnWidth"
+    android:verticalSpacing="1dp" />
 

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.alamkanak.weekview.sample" >
+    package="com.alamkanak.weekview.sample">
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".CalendarActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@style/CustomActionBarTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,8 +20,8 @@
         </activity>
         <activity
             android:name="com.alamkanak.weekview.activities.SimpleActivity"
-            android:label="@string/title_activity_swipe_button" >
-        </activity>
+            android:label="@string/title_activity_swipe_button"></activity>
     </application>
 
 </manifest>
+

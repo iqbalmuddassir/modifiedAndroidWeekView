@@ -12,10 +12,10 @@ import com.alamkanak.weekview.sample.R;
 /**
  * Created by clicklabs27 on 3/10/15.
  */
-public class BottomNavigationFragment extends Fragment{
+public class BottomNavigationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.lower_navigation_fragment,container);
+        View view = inflater.inflate(R.layout.lower_navigation_fragment, container);
         return view;
     }
 }
