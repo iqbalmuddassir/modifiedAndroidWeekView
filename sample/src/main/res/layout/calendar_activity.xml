@@ -7,42 +7,10 @@
     android:background="#fff"
     tools:context=".MyActivity">
 
-    <RelativeLayout
-        android:id="@+id/stylist_option"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/caldroid_white">
-
-        <ImageButton
-            android:id="@+id/show_list_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="23dp"
-            android:background="@color/caldroid_transparent"
-            android:onClick="onClick"
-            android:src="@drawable/more" />
-
-        <TextView
-            android:id="@+id/stylist_option_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="23dp"
-            android:gravity="center"
-            android:text="Select Stylist"
-            android:textColor="@color/button_not_selected"
-            android:textSize="13sp" />
-
-    </RelativeLayout>
-
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_below="@id/stylist_option"
         android:orientation="horizontal"
         android:weightSum="3">
 
@@ -86,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"></fragment>
+        android:orientation="vertical" />
 
     <com.alamkanak.weekview.WeekView
         android:id="@+id/weekView"
@@ -113,6 +81,6 @@
         android:layout_height="match_parent"
         android:layout_above="@id/menu_bar"
         android:layout_below="@id/button_container"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical" />
 
 </RelativeLayout>

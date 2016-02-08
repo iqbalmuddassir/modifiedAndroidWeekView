@@ -49,9 +49,6 @@ public class WeekView extends View {
     public static final int LENGTH_SHORT = 1;
     @Deprecated
     public static final int LENGTH_LONG = 2;
-    @Deprecated
-    private int mDayNameLength = LENGTH_LONG;
-
     // For Shared Preferences
     private static final String CALENDAR_PREFERENCES = "Calendar date";
     private static final String DATE_KEY_WEEK = "Week View";
@@ -59,6 +56,8 @@ public class WeekView extends View {
     // Typeface for text - Added by Muddassir
     Typeface textTypeface;
     String textTypefaceName;
+    @Deprecated
+    private int mDayNameLength = LENGTH_LONG;
     private SharedPreferences calendarPreference;
     private Calendar mToday;
     private Calendar mStartDate;
@@ -134,6 +133,9 @@ public class WeekView extends View {
     private MonthChangeListener mMonthChangeListener;
     private EmptyViewClickListener mEmptyViewClickListener;
     private EmptyViewLongPressListener mEmptyViewLongPressListener;
+    private ChangeBackgroundListener mBackgroundListener;
+    private DateTimeInterpreter mDateTimeInterpreter;
+    private RectF columnRect;
     private final GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -287,9 +289,6 @@ public class WeekView extends View {
             }
         }
     };
-    private ChangeBackgroundListener mBackgroundListener;
-    private DateTimeInterpreter mDateTimeInterpreter;
-    private RectF columnRect;
 
     public WeekView(Context context) {
         this(context, null);

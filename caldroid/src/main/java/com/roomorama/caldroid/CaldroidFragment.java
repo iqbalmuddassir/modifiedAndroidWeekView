@@ -106,10 +106,6 @@ public class CaldroidFragment extends DialogFragment {
      * Weekday conventions
      */
     public static int SUNDAY = 1;
-    /**
-     * First column of calendar is Sunday
-     */
-    protected int startDayOfWeek = SUNDAY;
     public static int MONDAY = 2;
     public static int TUESDAY = 3;
     public static int WEDNESDAY = 4;
@@ -130,11 +126,13 @@ public class CaldroidFragment extends DialogFragment {
      * Reuse formatter to print "MMMM yyyy" format
      */
     private final StringBuilder monthYearStringBuilder = new StringBuilder(50);
-    private Formatter monthYearFormatter = new Formatter(
-            monthYearStringBuilder, Locale.getDefault());
     public String TAG = "CaldroidFragment";
     public DateTime restoreDate;
     public int currentPage = InfiniteViewPager.OFFSET;
+    /**
+     * First column of calendar is Sunday
+     */
+    protected int startDayOfWeek = SUNDAY;
     /**
      * Initial data
      */
@@ -177,6 +175,8 @@ public class CaldroidFragment extends DialogFragment {
      * however in many cases with compact screen, it can be collapsed to save space
      */
     protected boolean squareTextViewCell;
+    private Formatter monthYearFormatter = new Formatter(
+            monthYearStringBuilder, Locale.getDefault());
     /**
      * First day of month time
      */

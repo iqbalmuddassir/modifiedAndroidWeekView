@@ -1,7 +1,6 @@
 package com.alamkanak.weekview.sample;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -9,7 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.TypedValue;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
-import com.alamkanak.weekview.activities.SimpleActivity;
 import com.alamkanak.weekview.utils.TypeFaceSpan;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidListener;
@@ -33,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static com.alamkanak.weekview.utils.AppConstants.APR;
 import static com.alamkanak.weekview.utils.AppConstants.CALENDAR_PREFERENCES;
@@ -62,7 +61,7 @@ import static com.alamkanak.weekview.utils.AppConstants.WEEK_VIEW;
  * Created by Raquib-ul-Alam Kanak on 7/21/2014.
  * Website: http://april-shower.com
  */
-public class CalendarActivity extends ActionBarActivity implements WeekView.MonthChangeListener,
+public class CalendarActivity extends AppCompatActivity implements WeekView.MonthChangeListener,
         WeekView.EventClickListener, WeekView.EmptyViewClickListener,
         WeekView.ChangeBackgroundListener {
 
@@ -74,7 +73,7 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
     HashMap<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
     // Typeface for text - Added by Muddassir
     Typeface ralewayLight, ralewayRegular, ralewaySemiBold;
-    TextView monthText, stylistOptionTitle;
+    TextView monthText;
     // Day view & Week view object
     private WeekView mWeekView;
     // Month view fragment object
@@ -96,7 +95,7 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
 
             SharedPreferences.Editor editor = calendarPreference.edit();
             editor.putLong(DATE_KEY_MONTH, date.getTime());
-            editor.commit();
+            editor.apply();
 
             // this is opening the day view of the selected date
             Calendar requiredDate = Calendar.getInstance();
@@ -130,11 +129,8 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
         }
 
     };
-    // Variables to be used in the program - Added by Muddassir
-    private FragmentManager manager = null;
     private SimpleDateFormat formatter;
     private Date[] startEndTime;
-    private WeekViewEvent event;
     private SharedPreferences calendarPreference;
 
     @Override
@@ -155,8 +151,10 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
         s.setSpan(new TypeFaceSpan(this, RALEWAY_REGULAR), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(s);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(s);
+        }
     }
 
     // Initialize all the required components
@@ -173,16 +171,14 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
                 RALEWAY_SEMI_BOLD); // Added by Muddassir
 
         // To record the button pressed - Added by Muddassir
-        stylistOptionTitle = (TextView) findViewById(R.id.stylist_option_title);
         buttonDayView = (Button) findViewById(R.id.action_day_view);
         buttonWeekView = (Button) findViewById(R.id.action_week_view);
         buttonMonthView = (Button) findViewById(R.id.action_month_view);
         buttonDayView.setTypeface(ralewayRegular);
         buttonWeekView.setTypeface(ralewayRegular);
         buttonMonthView.setTypeface(ralewayRegular);
-        stylistOptionTitle.setTypeface(ralewayRegular);
 
-        formatter = new SimpleDateFormat(DD_MMM_YYYY);
+        formatter = new SimpleDateFormat(DD_MMM_YYYY, Locale.getDefault());
 
         // Get a reference for the week view in the layout.
         mWeekView = (WeekView) findViewById(R.id.weekView);
@@ -275,26 +271,24 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
                     }
                     viewType = MONTH_VIEW;
                     mWeekView.setVisibility(View.GONE);
-                    manager = null;
+                    FragmentManager manager;
                     // open the month view calendar
-                    if (manager == null) {
-                        Bundle args = new Bundle();
-                        Calendar cal = Calendar.getInstance();
-                        // Extract Date from the Shared Preferences if already stored
-                        if (calendarPreference.contains(DATE_KEY_MONTH)) {
-                            long dateInMillis = calendarPreference.getLong(DATE_KEY_MONTH, 0);
-                            cal.setTimeInMillis(dateInMillis);
-                            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-                            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-                        } else {
-                            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-                            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-                        }
-                        args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-                        args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
-
-                        customMonthCalendar.setArguments(args);
+                    Bundle args = new Bundle();
+                    Calendar cal = Calendar.getInstance();
+                    // Extract Date from the Shared Preferences if already stored
+                    if (calendarPreference.contains(DATE_KEY_MONTH)) {
+                        long dateInMillis = calendarPreference.getLong(DATE_KEY_MONTH, 0);
+                        cal.setTimeInMillis(dateInMillis);
+                        args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+                        args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+                    } else {
+                        args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+                        args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
                     }
+                    args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
+                    args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, false);
+
+                    customMonthCalendar.setArguments(args);
                     manager = getSupportFragmentManager();
                     manager.beginTransaction()
                             .replace(R.id.calendar_layout, customMonthCalendar).commitAllowingStateLoss();
@@ -302,11 +296,6 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
                     customMonthCalendar.refreshView();
                     changeButtonBackground(buttonMonthView);
                 }
-                break;
-
-            case R.id.show_list_button:
-                Intent intent = new Intent(this, SimpleActivity.class);
-                startActivity(intent);
                 break;
         }
     }
@@ -323,7 +312,7 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
     public List<WeekViewEvent> onMonthChange(int newYear, int newMonth) {
 
         // Populate the week view with some events.
-        List<WeekViewEvent> events = new ArrayList<>();
+        List<WeekViewEvent> events;
         events = extractEvent(newMonth);
         return events;
     }
@@ -524,7 +513,7 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
      * Convert the given Calendar touch time and compute its slot
      * Added by Muddassir
      *
-     * @param time
+     * @param time time at which it it touched
      * @return Date[] of start and end time of the slot
      */
     private Date[] convertTime(Calendar time) {
@@ -560,7 +549,7 @@ public class CalendarActivity extends ActionBarActivity implements WeekView.Mont
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        calendarPreference.edit().clear().commit();
+        calendarPreference.edit().clear().apply();
     }
 
     @Override
